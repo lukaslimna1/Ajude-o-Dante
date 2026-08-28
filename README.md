@@ -6,7 +6,7 @@ Cópia local organizada do site [ajudeodante.vercel.app](https://ajudeodante.ver
 
 - O repositório de desenvolvimento é [lukaslimna1/Ajude-o-Dante](https://github.com/lukaslimna1/Ajude-o-Dante), na branch `main`.
 - O projeto Vercel `ajudeodante` está conectado a esse repositório e usa o domínio [ajudeodante.vercel.app](https://ajudeodante.vercel.app/).
-- A implantação Git de produção mais recente usa o commit `ee9cfac` (`Trigger Vercel deployment from GitHub`).
+- A implantação Git de produção mais recente usa o commit `d2b8872` (`Document GitHub and Vercel setup`).
 - `index.html` é o ponto de entrada publicado pela Vercel; `src/index.html` preserva a cópia organizada da produção. Ambos têm referências locais em `public/images/` e não armazenam credenciais privadas.
 - A Vercel está configurada para publicar a raiz `.` do repositório, pois `public/` contém somente imagens e vídeos.
 

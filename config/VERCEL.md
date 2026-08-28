@@ -9,7 +9,7 @@
 - Root directory: raiz do repositório.
 - Node.js configurado no projeto: `24.x` (não há código de servidor Node).
 - Repositório conectado: `lukaslimna1/Ajude-o-Dante`, branch de produção `main`.
-- Deploy Git de produção mais recente registrado: commit `ee9cfac`, estado `Ready`.
+- Deploy Git de produção mais recente registrado: commit `d2b8872`, estado `Ready`.
 - Domínios associados: `https://ajudeodante.vercel.app/` e aliases de implantação da Vercel.
 - Autenticação de implantação da Vercel: desativada para permitir acesso público ao site.
 

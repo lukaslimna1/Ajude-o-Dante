@@ -18,7 +18,7 @@ O único arquivo recuperável diretamente da produção foi o documento `/`, sal
 
 ## Estado atual após a cópia
 
-O repositório local foi publicado em `lukaslimna1/Ajude-o-Dante` e conectado ao projeto Vercel `ajudeodante`. A implantação Git atual é a fonte de produção e usa o commit `ee9cfac`. A raiz `.` foi definida como output directory para que o `index.html` da raiz seja servido mesmo com a pasta `public/` reservada aos assets.
+O repositório local foi publicado em `lukaslimna1/Ajude-o-Dante` e conectado ao projeto Vercel `ajudeodante`. A implantação Git atual é a fonte de produção e usa o commit `d2b8872`. A raiz `.` foi definida como output directory para que o `index.html` da raiz seja servido mesmo com a pasta `public/` reservada aos assets.
 
 ## Histórico
 
