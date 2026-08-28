@@ -6,7 +6,7 @@ Cópia local organizada da versão pública do site [ajudeodante.vercel.app](htt
 
 - A implantação de produção responde com um único `index.html` contendo HTML, CSS e JavaScript embutidos.
 - Não foi encontrado um repositório público com o código-fonte do site. O repositório `lukaslimna1/lukaslimna1` contém os assets da campanha.
-- A versão local em `src/index.html` é a cópia da produção com duas adaptações locais: referências de imagens apontando para `public/images/` e a credencial do Supabase removida.
+- `index.html` é o ponto de entrada da Vercel; `src/index.html` preserva a cópia organizada da produção. Ambos têm o mesmo conteúdo, com referências locais em `public/images/` e a credencial do Supabase removida.
 - Nenhum arquivo foi enviado, publicado ou alterado online. Não houve commit, push, deploy, alteração no Vercel, GitHub ou Supabase.
 
 ## Estrutura

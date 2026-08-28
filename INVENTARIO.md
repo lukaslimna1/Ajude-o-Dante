@@ -4,6 +4,7 @@
 
 | Arquivo | Origem | Finalidade | Em uso atualmente? | Observações |
 |---|---|---|---|---|
+| `index.html` | Cópia local de `src/index.html` | Ponto de entrada estático na raiz para Vercel | Será usado no próximo deploy | Mesmo conteúdo da cópia organizada, com caminhos adequados à raiz. |
 | `src/index.html` | HTML da implantação pública | Página completa, incluindo HTML, CSS e JavaScript | Sim, representa a produção | Adaptado para usar imagens locais; credencial do Supabase removida. |
 | `public/images/dante-2.jpg` | GitHub `lukaslimna1/lukaslimna1`, `assets/ajudeodante/` | Foto do Dante | Não referenciado pela produção | Recuperado como asset preparado. |
 | `public/images/dante-3.jpg` | GitHub `lukaslimna1/lukaslimna1`, `assets/ajudeodante/` | Foto do Dante | Sim | A produção usa esta mesma imagem no hero e três vezes na galeria. |
