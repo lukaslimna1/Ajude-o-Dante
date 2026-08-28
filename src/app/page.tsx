@@ -1,4 +1,5 @@
 import CampaignPage from "@/components/campaign-page";
+import { faqItems } from "@/data/campaign-content";
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -22,13 +23,11 @@ const structuredData = {
     },
     {
       "@type": "FAQPage",
-      mainEntity: [
-        ["Qualquer valor pode ajudar?", "Sim. Cada contribuição e cada compartilhamento ajudam o Dante a continuar o tratamento."],
-        ["Para onde vai o dinheiro?", "Para despesas do tratamento, como internação, exames, medicamentos, alimentação e recuperação."],
-        ["Como acompanho as atualizações?", "Esta página será atualizada conforme tivermos novas informações confirmadas."],
-        ["Posso compartilhar a campanha?", "Sim. Compartilhar a campanha é uma forma muito importante de ajudar."],
-        ["Como faço para avisar que já doei?", "Use o formulário ao lado ou fale diretamente com o Lucas pelo WhatsApp."],
-      ].map(([name, text]) => ({ "@type": "Question", name, acceptedAnswer: { "@type": "Answer", text } })),
+      mainEntity: faqItems.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: { "@type": "Answer", text: item.answer },
+      })),
     },
   ],
 };
@@ -36,7 +35,10 @@ const structuredData = {
 export default function Home() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <CampaignPage />
     </>
   );
