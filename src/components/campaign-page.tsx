@@ -359,7 +359,65 @@ export default function CampaignPage() {
 
       <section id="ajudar" className="section container"><div className="section-heading"><p className="section-kicker">Gratidão</p><h2>Quem já ajudou o Dante</h2><p className="section-intro">Cada nome representa um gesto de carinho, apoio e confiança. Muito obrigado por fazer parte dessa história.</p></div><div className="supporters-grid">{supporters.map(([name, note], index) => <motion.div className="supporter-card" key={name} initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} whileHover={{ y: -5, scale: 1.015 }} viewport={{ once: true, amount: .2 }} transition={{ delay: index * .04, duration: .4 }}><span className="supporter-icon" aria-hidden="true">♥</span><div><strong>{name}</strong><small>{note}</small></div></motion.div>)}</div><div className="gratitude-note"><span aria-hidden="true">🐾</span><div><strong>Obrigado por ajudar o Dante</strong><p>Se você também ajudou e ainda não está aqui, avise pelo formulário. Vamos manter esta lista viva com respeito e carinho.</p></div></div><div className="soft-panel" style={{ marginTop: 24 }}><p className="section-kicker">Não consegue doar?</p><h2>Compartilhar já ajuda muito</h2><p className="section-intro">Espalhe a campanha para que mais pessoas conheçam a história do Dante.</p><button className="button button-primary" style={{ marginTop: 18 }} onClick={shareCampaign}>↗ Compartilhar campanha</button></div></section>
 
-      <section id="transparencia" className="section container"><div className="two-column"><div className="soft-panel"><p className="section-kicker">Clareza sempre</p><h2>Transparência</h2><p>Queremos mostrar com clareza como cada ajuda está sendo utilizada. Os comprovantes e atualizações serão organizados aqui conforme forem disponibilizados.</p><span className="status-tag" style={{ background: "var(--soft)", color: "var(--orange-dark)" }}>Documentos sendo organizados</span></div><div id="doar" className="pix-box"><p className="pix-label">PIX DIRETO</p><div className="pix-qr"><Image src="/images/Usar/qr-pix-direto.png" alt="QR Code Pix direto para ajudar o Dante" width={360} height={780} unoptimized /></div><p className="pix-qr-note">Escaneie o QR Code e escolha qualquer valor no aplicativo do seu banco.</p><p className="pix-label pix-key-label">OU COPIE A CHAVE PIX</p><div className="pix-key">{pixKey}</div><p className="pix-owner">Titular: Lucas Mateus Soares de Lima</p><button className="button button-primary" onClick={copyPix}>▣ Copiar chave Pix</button><p className="secure-note" style={{ color: "#d9c3b8" }}>{feedback}</p><div className="mp-checkout"><p className="pix-label">CARTÃO • MERCADO PAGO</p><p className="mp-description">Escolha o valor e continue para o checkout seguro do Mercado Pago.</p><div className="mp-row"><label htmlFor="donation-amount">Valor</label><div className="mp-input-wrap"><span>R$</span><input id="donation-amount" value={donationAmount} onChange={(event) => setDonationAmount(event.target.value)} inputMode="decimal" aria-label="Valor da doação em reais" /></div></div><button className="button button-mp" onClick={startMercadoPagoCheckout} disabled={mercadoPagoLoading}>{mercadoPagoLoading ? "Abrindo…" : "Continuar no Mercado Pago"}</button><p className="secure-note mp-status" style={{ color: "#d9c3b8" }} aria-live="polite">{mercadoPagoStatus}</p></div></div></div></section>
+      <section id="transparencia" className="section container">
+        <div className="two-column">
+          <div className="soft-panel">
+            <p className="section-kicker">Clareza sempre</p>
+            <h2>Transparência</h2>
+            <p>Queremos mostrar com clareza como cada ajuda está sendo utilizada. Os comprovantes e atualizações serão organizados aqui conforme forem disponibilizados.</p>
+            <span className="status-tag" style={{ background: "var(--soft)", color: "var(--orange-dark)" }}>Documentos sendo organizados</span>
+          </div>
+
+          <div id="doar" className="pix-box">
+            <div className="pix-header">
+              <p className="pix-label">Pix direto</p>
+              <span className="pix-availability">Disponível agora</span>
+            </div>
+
+            <div className="pix-qr">
+              <Image
+                className="pix-qr-source"
+                src="/images/Usar/qr-pix-direto.png"
+                alt="QR Code Pix direto para ajudar o Dante"
+                width={360}
+                height={780}
+                unoptimized
+              />
+            </div>
+
+            <div className="pix-key-area">
+              <p className="pix-label pix-key-label">Ou copie a chave Pix</p>
+              <div className="pix-key">{pixKey}</div>
+              <p className="pix-owner">Titular: Lucas Mateus Soares de Lima</p>
+              <button className="button button-primary" onClick={copyPix}><span aria-hidden="true">▣</span> Copiar chave Pix</button>
+              <p className="secure-note pix-feedback" aria-live="polite">{feedback}</p>
+            </div>
+
+            <div className="mp-checkout">
+              <div className="mp-heading">
+                <div>
+                  <p className="pix-label">Checkout seguro</p>
+                  <h3>Mercado Pago</h3>
+                </div>
+                <span className="mp-shield" aria-hidden="true">⌑</span>
+              </div>
+              <p className="mp-description">Escolha o valor e conclua a doação no ambiente seguro do Mercado Pago.</p>
+              <ul className="mp-methods" aria-label="Formas de pagamento que podem estar disponíveis no checkout">
+                <li><span className="mp-method-icon" aria-hidden="true">◈</span><span>Pix</span></li>
+                <li><span className="mp-method-icon" aria-hidden="true">▣</span><span>Cartão</span></li>
+                <li><span className="mp-method-icon" aria-hidden="true">≡</span><span>Boleto</span></li>
+              </ul>
+              <p className="mp-methods-note">Pix, cartão e boleto aparecem conforme as opções disponíveis no checkout.</p>
+              <div className="mp-row">
+                <label htmlFor="donation-amount">Valor da doação</label>
+                <div className="mp-input-wrap"><span>R$</span><input id="donation-amount" value={donationAmount} onChange={(event) => setDonationAmount(event.target.value)} inputMode="decimal" aria-label="Valor da doação em reais" /></div>
+              </div>
+              <button className="button button-mp" onClick={startMercadoPagoCheckout} disabled={mercadoPagoLoading}><span aria-hidden="true">↗</span> {mercadoPagoLoading ? "Abrindo checkout…" : "Continuar no Mercado Pago"}</button>
+              <p className="secure-note mp-status" aria-live="polite">{mercadoPagoStatus}</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="section container"><div className="donate-grid"><div className="soft-panel"><p className="section-kicker">Já doou?</p><h2>Avise a gente</h2><p className="section-intro">Seu aviso ajuda a organizar os agradecimentos. Não é necessário informar dados sensíveis.</p><form className="donor-form" onSubmit={submitDonorSignal}><label>Nome (opcional)<input name="name" maxLength={120} placeholder="Como podemos agradecer?" /></label><label>Contato (opcional)<input name="contact" maxLength={180} placeholder="WhatsApp, Instagram ou e-mail" /></label><label>Valor doado (opcional)<input name="amount" inputMode="decimal" placeholder="R$ 0,00" /></label><label>Mensagem<textarea name="message" maxLength={500} placeholder="Deixe uma mensagem para o Dante" /></label><label className="check-row"><input name="consent" type="checkbox" /> <span>Autorizo contato para confirmação, se necessário.</span></label><button className="button button-primary" type="submit">♥ Avisar que doei</button><p className="form-status" aria-live="polite">{donorStatus}</p></form></div><div id="perguntas" className="soft-panel"><p className="section-kicker">Dúvidas</p><h2>Perguntas frequentes</h2><div className="faq-list"><details><summary>Qualquer valor pode ajudar?</summary><p>Sim. Cada contribuição e cada compartilhamento ajudam o Dante a continuar o tratamento.</p></details><details><summary>Para onde vai o dinheiro?</summary><p>Para despesas do tratamento, como internação, exames, medicamentos, alimentação e recuperação.</p></details><details><summary>Como acompanho as atualizações?</summary><p>Esta página será atualizada conforme tivermos novas informações confirmadas.</p></details><details><summary>Posso compartilhar a campanha?</summary><p>Sim. Compartilhar a campanha é uma forma muito importante de ajudar.</p></details><details><summary>Como faço para avisar que já doei?</summary><p>Use o formulário ao lado ou fale diretamente com o Lucas pelo WhatsApp.</p></details></div></div></div></section>
 
