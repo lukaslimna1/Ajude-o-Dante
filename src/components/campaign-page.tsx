@@ -10,8 +10,7 @@ import {
   campaignImages,
   contacts,
   faqItems,
-  legacyFinancialSupporters,
-  otherSupporters,
+  initialSupporters,
 } from "@/data/campaign-content";
 import { currentStatusEvent, timelineEvents } from "@/data/dante-timeline";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
@@ -733,84 +732,53 @@ export default function CampaignPage() {
       {/* GRATIDÃO */}
       <section id="ajudar" className="section container">
         <div className="section-heading">
-          <p className="section-kicker">Gratidão</p>
-          <h2>Quem já ajudou o Dante</h2>
+          <p className="section-kicker">NOSSA GRATIDÃO</p>
+          <h2>Quem está ajudando o Dante</h2>
           <p className="section-intro">
-            Cada nome representa um gesto de carinho, apoio e confiança. Muito
-            obrigado por fazer parte dessa história.
+            Pessoas, profissionais e apoios que estão fazendo diferença na recuperação do Dante.
           </p>
         </div>
 
-        {/* CONTRIBUIÇÕES FINANCEIRAS */}
-        <div className="gratitude-category-block">
-          <h3 className="gratitude-category-title">
-            <span aria-hidden="true">♥</span> Contribuições Financeiras
-          </h3>
-          <div className="supporters-grid">
-            {(() => {
-              const list: [string, string][] = [];
-              const seenNames = new Set<string>();
-              const legacyNotesMap = new Map<string, string>();
-              for (const [name, note] of legacyFinancialSupporters) {
-                legacyNotesMap.set(name.trim().toLowerCase(), note);
+        <div className="supporters-grid">
+          {(() => {
+            const list: [string, string, boolean][] = [];
+            const seenNames = new Set<string>();
+            const initialNotesMap = new Map<string, string>();
+            for (const [name, note] of initialSupporters) {
+              initialNotesMap.set(name.trim().toLowerCase(), note);
+            }
+
+            // 1. Apoiadores automáticos do banco
+            for (const name of publicFinancialSupporters) {
+              const clean = name.trim();
+              const key = clean.toLowerCase();
+              if (clean && !seenNames.has(key)) {
+                seenNames.add(key);
+                const note = initialNotesMap.get(key) || "Nosso agradecimento de coração.";
+                const isSpecial = key === "rosangela";
+                list.push([clean, note, isSpecial]);
               }
+            }
 
-              // 1. Apoiadores automáticos do banco
-              for (const name of publicFinancialSupporters) {
-                const clean = name.trim();
-                const key = clean.toLowerCase();
-                if (clean && !seenNames.has(key)) {
-                  seenNames.add(key);
-                  const note = legacyNotesMap.get(key) || "Contribuição confirmada";
-                  list.push([clean, note]);
-                }
+            // 2. Apoiadores da lista base (deduplicados)
+            for (const [name, note] of initialSupporters) {
+              const key = name.trim().toLowerCase();
+              if (!seenNames.has(key)) {
+                seenNames.add(key);
+                const isSpecial = key === "rosangela";
+                list.push([name, note, isSpecial]);
               }
+            }
 
-              // 2. Apoiadores financeiros legados preservados (deduplicados)
-              for (const [name, note] of legacyFinancialSupporters) {
-                const key = name.trim().toLowerCase();
-                if (!seenNames.has(key)) {
-                  seenNames.add(key);
-                  list.push([name, note]);
-                }
-              }
-
-              return list.map(([name, note], index) => (
-                <motion.div
-                  className="supporter-card"
-                  key={`fin-${name}`}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                  viewport={{ once: true, amount: 0.2 }}
-                  transition={{ delay: index * 0.04, duration: 0.4 }}
-                >
-                  <span className="supporter-icon" aria-hidden="true">🐾</span>
-                  <div>
-                    <strong>{name}</strong>
-                    <small>{note}</small>
-                  </div>
-                </motion.div>
-              ));
-            })()}
-          </div>
-        </div>
-
-        {/* OUTRAS FORMAS DE APOIO */}
-        <div className="gratitude-category-block">
-          <h3 className="gratitude-category-title">
-            <span aria-hidden="true">★</span> Outras Formas de Apoio
-          </h3>
-          <div className="supporters-grid">
-            {otherSupporters.map(([name, note], index) => (
+            return list.map(([name, note, isSpecial], index) => (
               <motion.div
-                className="supporter-card"
-                key={`other-${name}`}
+                className={isSpecial ? "supporter-card supporter-card-special" : "supporter-card"}
+                key={`supporter-${name}`}
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -4, scale: 1.01 }}
                 viewport={{ once: true, amount: 0.2 }}
-                transition={{ delay: index * 0.04, duration: 0.4 }}
+                transition={{ delay: index * 0.03, duration: 0.4 }}
               >
                 <span className="supporter-icon" aria-hidden="true">🐾</span>
                 <div>
@@ -818,20 +786,10 @@ export default function CampaignPage() {
                   <small>{note}</small>
                 </div>
               </motion.div>
-            ))}
-          </div>
+            ));
+          })()}
         </div>
 
-        <div className="gratitude-note">
-          <span aria-hidden="true">🐾</span>
-          <div>
-            <strong>Obrigado por ajudar o Dante</strong>
-            <p>
-              Se você também ajudou e deseja ter seu nome aqui, fale conosco pelo
-              WhatsApp. Vamos manter esta lista viva com respeito e carinho.
-            </p>
-          </div>
-        </div>
         <div className="soft-panel" style={{ marginTop: 24 }}>
           <p className="section-kicker">Não consegue doar?</p>
           <h2>Compartilhar já ajuda muito</h2>

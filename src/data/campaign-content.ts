@@ -120,26 +120,22 @@ export const campaignConfig = {
   siteUrl: "https://ajudeodante.vercel.app",
 };
 
-export const legacyFinancialSupporters: [string, string][] = [
-  ["Rosangela", "Nosso agradecimento especial"],
-  ["Leticia Mota Leite Martins", "Nosso agradecimento"],
-  ["Marina N. Lorenzetti Gil", "Nosso agradecimento"],
-  ["Iris Cristina de O. O. Alcarde", "Nosso agradecimento"],
-  ["Mattos Max Transporte e Turismo", "Nosso agradecimento"],
+export const initialSupporters: [string, string][] = [
+  ["Rosangela", "Não temos palavras para agradecer esse gesto."],
+  ["Leticia Mota Leite Martins", "Nosso agradecimento de coração."],
+  ["Marina N. Lorenzetti Gil", "Nosso agradecimento de coração."],
+  ["Iris Cristina de O. O. Alcarde", "Nosso agradecimento de coração."],
+  ["Mattos Max Transporte e Turismo", "Nosso agradecimento de coração."],
+  ["Renata Ferriguti", "Apoio e mobilização."],
+  ["Clínica Animal House", "Cuidado, atendimento e apoio ao Dante."],
+  ["Veterinária Isa", "Cuidado e atendimento."],
+  ["Veterinário Vinicius", "Cuidado e atendimento."],
+  ["Vereador Júlio Cesar", "Nosso agradecimento de coração."],
 ];
 
-export const otherSupporters: [string, string][] = [
-  ["Renata Ferreguti", "Família TEA Bauru"],
-  ["Clínica Animal House", "Cuidado e atendimento"],
-  ["Veterinária Isa", "Cuidado e atendimento"],
-  ["Veterinário Vinicius", "Cuidado e atendimento"],
-  ["Vereador Júlio Cesar", "Nosso agradecimento"],
-];
-
-export const supporters: [string, string][] = [
-  ...legacyFinancialSupporters,
-  ...otherSupporters,
-];
+export const legacyFinancialSupporters: [string, string][] = initialSupporters;
+export const otherSupporters: [string, string][] = [];
+export const supporters: [string, string][] = initialSupporters;
 
 export const campaignImages = [
   { src: "/images/Usar/Fotos/Dante 01  (3).png", alt: "Foto real do Dante recebendo carinho" },
