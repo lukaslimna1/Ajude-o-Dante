@@ -1,13 +1,14 @@
 # Ajude o Dante
 
-Cópia local organizada da versão pública do site [ajudeodante.vercel.app](https://ajudeodante.vercel.app/), recuperada somente por leitura em 28/08/2026. O projeto é uma página estática de campanha para arrecadar recursos para cirurgia veterinária, internação e recuperação do Dante, em Bauru/SP.
+Cópia local organizada do site [ajudeodante.vercel.app](https://ajudeodante.vercel.app/), preparada para continuar o desenvolvimento pelo computador. O projeto é uma página estática de campanha para arrecadar recursos para cirurgia veterinária, internação e recuperação do Dante, em Bauru/SP.
 
 ## Situação da cópia
 
-- A implantação de produção responde com um único `index.html` contendo HTML, CSS e JavaScript embutidos.
-- Não foi encontrado um repositório público com o código-fonte do site. O repositório `lukaslimna1/lukaslimna1` contém os assets da campanha.
-- `index.html` é o ponto de entrada da Vercel; `src/index.html` preserva a cópia organizada da produção. Ambos têm o mesmo conteúdo, com referências locais em `public/images/` e a credencial do Supabase removida.
-- Nenhum arquivo foi enviado, publicado ou alterado online. Não houve commit, push, deploy, alteração no Vercel, GitHub ou Supabase.
+- O repositório de desenvolvimento é [lukaslimna1/Ajude-o-Dante](https://github.com/lukaslimna1/Ajude-o-Dante), na branch `main`.
+- O projeto Vercel `ajudeodante` está conectado a esse repositório e usa o domínio [ajudeodante.vercel.app](https://ajudeodante.vercel.app/).
+- A implantação Git de produção mais recente usa o commit `ee9cfac` (`Trigger Vercel deployment from GitHub`).
+- `index.html` é o ponto de entrada publicado pela Vercel; `src/index.html` preserva a cópia organizada da produção. Ambos têm referências locais em `public/images/` e não armazenam credenciais privadas.
+- A Vercel está configurada para publicar a raiz `.` do repositório, pois `public/` contém somente imagens e vídeos.
 
 ## Estrutura
 
@@ -56,9 +57,11 @@ python -m http.server 8080
 
 Depois abra [http://localhost:8080/src/](http://localhost:8080/src/). A página e as imagens locais estarão disponíveis. Sem configurar a chave do Supabase, a interface continua visível, mas o progresso dinâmico e o envio do formulário não poderão autenticar na API.
 
-## Deploy futuro (não executado)
+## Deploy futuro
 
-Como a implantação pública não expõe configuração de build, a opção mais direta seria servir este conteúdo estático pela Vercel com a raiz do projeto apontando para `Ajude-o-Dante/`. Antes de um novo deploy, seria necessário decidir se `src/index.html` será movido para a raiz pública ou se será criada uma configuração explícita de saída, além de configurar as variáveis do Supabase no ambiente da Vercel. Nenhuma dessas ações foi realizada nesta coleta.
+O fluxo atual é GitHub → Vercel: alterações enviadas para a branch `main` geram uma nova implantação de produção no projeto `ajudeodante`. A configuração de build é `Other`, sem comando de build, com a pasta de saída definida como `.`. Para habilitar o progresso dinâmico e o formulário, as variáveis de ambiente do Supabase devem ser configuradas na Vercel sem colocá-las no Git.
+
+Não é necessário usar o projeto `lucaslimadigital` nem o repositório `Lucas-Lima-Digital`.
 
 ## Fontes consultadas
 
