@@ -750,6 +750,10 @@ export default function CampaignPage() {
             {(() => {
               const list: [string, string][] = [];
               const seenNames = new Set<string>();
+              const legacyNotesMap = new Map<string, string>();
+              for (const [name, note] of legacyFinancialSupporters) {
+                legacyNotesMap.set(name.trim().toLowerCase(), note);
+              }
 
               // 1. Apoiadores automáticos do banco
               for (const name of publicFinancialSupporters) {
@@ -757,7 +761,8 @@ export default function CampaignPage() {
                 const key = clean.toLowerCase();
                 if (clean && !seenNames.has(key)) {
                   seenNames.add(key);
-                  list.push([clean, "Contribuição confirmada"]);
+                  const note = legacyNotesMap.get(key) || "Contribuição confirmada";
+                  list.push([clean, note]);
                 }
               }
 
