@@ -31,7 +31,7 @@ Para carregar os dados reais da campanha, copie `.env.example` para `.env.local`
 
 ## Integrações
 
-- Supabase usa apenas `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` no navegador. O progresso é lido de `dante_campaign`; o aviso “Já doou?” grava em `dante_donor_signals` quando o ambiente estiver configurado.
+- Supabase usa `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` no navegador para consultar o progresso da campanha em `dante_campaign`.
 - Pix continua sendo exibido e pode ser copiado.
 - Compartilhamento usa a API nativa do navegador, com cópia do link como fallback.
 - WhatsApp permanece como contato direto.
