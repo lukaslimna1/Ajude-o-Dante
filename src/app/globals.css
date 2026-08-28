@@ -479,7 +479,7 @@ a { color:inherit; text-decoration:none; } button,input,textarea { font:inherit;
 .timeline-progress {
   top: 0;
   bottom: 0;
-  left: 14px;
+  left: 13.5px;
   width: 2px;
   height: 100%;
 }
@@ -584,12 +584,12 @@ a { color:inherit; text-decoration:none; } button,input,textarea { font:inherit;
 }
 
 .timeline-item-active {
-  padding-left: 16px !important;
-  border-left: 2px solid rgba(230,83,24,.18) !important;
+  padding-left: 0 !important;
+  border-left: 0 !important;
 }
 
 .timeline-item-active .timeline-copy {
-  padding-left: 20px;
+  padding-left: 0 !important;
 }
 
 .timeline-closure {
@@ -603,7 +603,7 @@ a { color:inherit; text-decoration:none; } button,input,textarea { font:inherit;
 
   .timeline-track,
   .timeline-progress {
-    left: 13px;
+    left: 13.5px;
   }
 
   .timeline-dot,
@@ -612,12 +612,64 @@ a { color:inherit; text-decoration:none; } button,input,textarea { font:inherit;
   }
 
   .timeline-item-active {
-    padding-left: 12px !important;
+    padding-left: 0 !important;
   }
 
   .timeline-item-active .timeline-copy {
-    padding-left: 10px;
+    padding-left: 0 !important;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .timeline-progress {
+    transform: none !important;
+  }
+}
+
+/* Latest clinic update */
+.status-date {
+  margin: 0 0 7px !important;
+  color: #ffcaa9 !important;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.status-card h4 {
+  margin: 0 0 11px;
+  color: white;
+  font-size: clamp(1.18rem, 2vw, 1.5rem);
+  line-height: 1.14;
+  letter-spacing: -.035em;
+}
+
+.status-description,
+.timeline-current-summary {
+  white-space: pre-line;
+}
+
+.status-description {
+  margin: 0 !important;
+}
+
+.status-tag-positive {
+  border: 1px solid rgba(226, 245, 229, .22);
+  color: #effff1;
+  background: rgba(188, 224, 194, .16);
+}
+
+.timeline-status-label {
+  display: inline-flex;
+  margin-top: 11px;
+  padding: 6px 10px;
+  border: 1px solid rgba(96, 138, 101, .2);
+  border-radius: 999px;
+  color: #3d7046;
+  background: #f0f7ef;
+  font-size: .76rem;
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 /* Active marker colors must win over the numbered marker base rule. */

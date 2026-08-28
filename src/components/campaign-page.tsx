@@ -32,7 +32,19 @@ const supporters = [
   ["Vereador Júlio Cesar", "Nosso agradecimento"],
 ];
 
-const timelineEvents = [
+type TimelineEvent = {
+  id: string;
+  date: string;
+  time: string;
+  title: string;
+  summary: string;
+  description: string;
+  type?: "status";
+  isCurrentStatus?: boolean;
+  statusLabel?: string;
+};
+
+const timelineEvents: TimelineEvent[] = [
   {
     id: "primeiro-sinal",
     date: "26/08 → 27/08",
@@ -105,7 +117,20 @@ const timelineEvents = [
     summary: "Doações e compartilhamentos formaram uma corrente de ajuda.",
     description: "Cada contribuição começou a diminuir um pouco o peso das despesas e, principalmente, mostrou que Dante não estava mais enfrentando essa luta apenas com a nossa família. Uma verdadeira corrente começou a se formar ao redor dele.",
   },
+  {
+    id: "2026-08-28-1626-cirurgia-sucesso",
+    date: "28/08/2026",
+    time: "16h26",
+    title: "Cirurgia realizada com sucesso",
+    summary: "A Clínica Animal House informou que a cirurgia foi realizada com sucesso. Dante está estável e em recuperação.",
+    description: "A Clínica Animal House informou que o procedimento cirúrgico do Dante foi realizado com sucesso.\n\nDante está bem, estável e em recuperação, permanecendo sob acompanhamento da equipe veterinária.\n\nNeste momento, seguimos aguardando sua evolução no pós-operatório e novas informações da clínica.",
+    type: "status",
+    isCurrentStatus: true,
+    statusLabel: "Estável · Em recuperação pós-cirúrgica",
+  },
 ];
+
+const currentStatusEvent = timelineEvents.find((event) => event.isCurrentStatus) ?? timelineEvents[timelineEvents.length - 1];
 
 type Campaign = { goalCents: number; confirmedCents: number };
 const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -291,7 +316,23 @@ export default function CampaignPage() {
 
       <section id="sobre" className="section container"><div className="two-column"><div className="soft-panel"><p className="section-kicker">Sobre o Dante</p><h2>O que aconteceu?</h2><p>Dante tem 7 meses e é nosso PET. Ele engoliu pano e outros materiais, e os exames mostraram corpos estranhos no estômago e no intestino.</p><p>Uma linha está puxando e “sanfonando” o intestino, obstruindo a passagem. Por isso, ele está recebendo atendimento, exames e tratamento na Clínica Animal House.</p></div><div className="soft-panel"><p className="section-kicker">Cuidado em cada etapa</p><h2>Como sua ajuda faz a diferença</h2><div className="care-grid">{[["🏥", "Internação", "Cuidados 24h e acompanhamento veterinário."], ["⌕", "Exames", "Diagnóstico e decisões mais seguras."], ["💊", "Medicamentos", "Tratamento conforme a orientação clínica."], ["🍲", "Alimentação", "Força para recuperação e bem-estar."], ["♥", "Pós-tratamento", "Recuperação com carinho e segurança."], ["↻", "Acompanhamento", "Novas consultas quando necessário."]].map(([icon, title, text], index) => <motion.div className="care-card" key={title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .25 }} transition={{ delay: index * .04, duration: .4 }}><div className="fact-icon" aria-hidden="true">{icon}</div><h3>{title}</h3><p>{text}</p></motion.div>)}</div></div></div></section>
 
-      <section id="atualizacoes" className="section container"><div className="section-heading"><p className="section-kicker">Estado atual</p><h2>Como ele está agora?</h2><p className="section-intro">Dante está em tratamento e acompanhamento veterinário. Este espaço ficará pronto para receber novos boletins.</p></div><div className="status-grid"><div className="status-photo"><Image src="/images/Usar/Fotos/Dante 06.png" alt="Foto real do Dante recebendo cuidados" fill sizes="(max-width: 900px) 100vw, 35vw" /></div><div className="status-card"><h3>Animal House</h3><p>A equipe da clínica está acompanhando o Dante durante o tratamento. Cada atualização será compartilhada com clareza e responsabilidade.</p><span className="status-tag">● Em tratamento / acompanhamento</span></div></div></section>
+      <section id="atualizacoes" className="section container">
+        <div className="section-heading">
+          <p className="section-kicker">Estado atual</p>
+          <h2>Como ele está agora?</h2>
+          <p className="section-intro">Acompanhe a atualização clínica mais recente confirmada pela equipe veterinária.</p>
+        </div>
+        <div className="status-grid">
+          <div className="status-photo"><Image src="/images/Usar/Fotos/Dante 06.png" alt="Foto real do Dante recebendo cuidados" fill sizes="(max-width: 900px) 100vw, 35vw" /></div>
+          <div className="status-card">
+            <h3>Animal House</h3>
+            <p className="status-date">{currentStatusEvent.date.replace(/\/\d{4}$/, "")} · {currentStatusEvent.time}</p>
+            <h4>{currentStatusEvent.title}</h4>
+            <p className="status-description">{currentStatusEvent.description}</p>
+            {currentStatusEvent.statusLabel && <span className="status-tag status-tag-positive">● {currentStatusEvent.statusLabel}</span>}
+          </div>
+        </div>
+      </section>
 
       <section className="section container">
         <div className="section-heading">
@@ -309,7 +350,7 @@ export default function CampaignPage() {
 
               return (
                 <motion.article
-                  className={`timeline-item${isActive ? " timeline-item-active" : ""}${isVisited ? " timeline-item-visited" : ""}`}
+                  className={`timeline-item${isActive ? " timeline-item-active" : ""}${isVisited ? " timeline-item-visited" : ""}${event.type === "status" ? " timeline-item-status" : ""}`}
                   key={event.id}
                   data-timeline-id={event.id}
                   role="listitem"
@@ -326,7 +367,8 @@ export default function CampaignPage() {
                       <span className="timeline-time">{event.time}</span>
                     </div>
                     <h3>{event.title}</h3>
-                    <p>{event.summary}</p>
+                    <p className={event.isCurrentStatus ? "timeline-current-summary" : undefined}>{event.isCurrentStatus ? event.description : event.summary}</p>
+                    {event.statusLabel && <span className="timeline-status-label">● {event.statusLabel}</span>}
                   </div>
                 </motion.article>
               );
