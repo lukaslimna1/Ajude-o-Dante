@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
   if (!accessToken) return jsonError("Mercado Pago ainda não está configurado no servidor.", 503);
 
-  let body: { amount?: unknown };
+  let body: { amount?: unknown; publicName?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -52,6 +52,8 @@ export async function POST(request: Request) {
     return jsonError("MERCADOPAGO_WEBHOOK_URL inválida.", 500);
   }
 
+  const publicName = Boolean(body.publicName);
+
   const externalReference = `dante-${crypto.randomUUID()}`;
   const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
@@ -77,7 +79,10 @@ export async function POST(request: Request) {
         pending: `${siteUrl}/?donation=pending`,
       },
       auto_return: "approved",
-      metadata: { campaign: "dante" },
+      metadata: {
+        campaign: "dante",
+        public_name: publicName,
+      },
     }),
     cache: "no-store",
   });

@@ -10,7 +10,8 @@ import {
   campaignImages,
   contacts,
   faqItems,
-  supporters,
+  legacyFinancialSupporters,
+  otherSupporters,
 } from "@/data/campaign-content";
 import { currentStatusEvent, timelineEvents } from "@/data/dante-timeline";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
@@ -47,7 +48,9 @@ export default function CampaignPage() {
     goalCents: number;
     confirmedCents: number;
   } | null>(null);
-  const [status, setStatus] = useState("Carregando dados da campanha…");
+  const [status, setStatus] = useState("Atualizando arrecadação…");
+  const [publicFinancialSupporters, setPublicFinancialSupporters] = useState<string[]>([]);
+  const [publicNameConsent, setPublicNameConsent] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [pixCopied, setPixCopied] = useState(false);
   const [selectedImage, setSelectedImage] = useState<
@@ -66,11 +69,11 @@ export default function CampaignPage() {
 
   useEffect(() => {
     let active = true;
-    async function loadProgress() {
-      const supabase = createSupabase();
+    const supabase = createSupabase();
+
+    async function fetchCampaign() {
       if (!supabase) {
-        if (active)
-          setStatus("Configure o Supabase para carregar a arrecadação real.");
+        if (active) setStatus("Configure o Supabase para carregar a arrecadação real.");
         return;
       }
       const { data, error } = await supabase
@@ -84,13 +87,60 @@ export default function CampaignPage() {
           confirmedCents: Number(data.confirmed_cents),
         });
         setStatus("Valores confirmados no Supabase");
-      } else if (active) {
-        setStatus("Arrecadação sendo atualizada.");
+      } else if (active && error) {
+        setStatus("Não foi possível atualizar os valores agora.");
       }
     }
-    void loadProgress();
+
+    async function fetchSupporters() {
+      if (!supabase) return;
+      const { data, error } = await supabase.rpc("get_dante_public_financial_supporters");
+      if (active && !error && Array.isArray(data)) {
+        const names = data.map((item: { display_name?: string } | string) =>
+          typeof item === "string" ? item : item.display_name || ""
+        ).filter(Boolean);
+        setPublicFinancialSupporters(names);
+      }
+    }
+
+    void fetchCampaign();
+    void fetchSupporters();
+
+    // Supabase Realtime Subscription
+    const channel = supabase
+      ? supabase
+          .channel("dante_campaign_realtime")
+          .on(
+            "postgres_changes",
+            { event: "*", schema: "public", table: "dante_campaign", filter: "id=eq.main" },
+            (payload) => {
+              if (!active) return;
+              if (payload.new && typeof payload.new === "object" && "confirmed_cents" in payload.new) {
+                const newRow = payload.new as { goal_cents?: number; confirmed_cents?: number };
+                setCampaign({
+                  goalCents: Number(newRow.goal_cents || campaignConfig.goalCentsDefault),
+                  confirmedCents: Number(newRow.confirmed_cents || 0),
+                });
+                setStatus("Atualizado em tempo real");
+                void fetchSupporters();
+              }
+            }
+          )
+          .subscribe()
+      : null;
+
+    // Polling fallback a cada 30 segundos
+    const pollingInterval = window.setInterval(() => {
+      void fetchCampaign();
+      void fetchSupporters();
+    }, 30000);
+
     return () => {
       active = false;
+      window.clearInterval(pollingInterval);
+      if (supabase && channel) {
+        void supabase.removeChannel(channel);
+      }
     };
   }, []);
 
@@ -230,7 +280,10 @@ export default function CampaignPage() {
       const response = await fetch("/api/mercadopago/preference", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
+        body: JSON.stringify({
+          amount,
+          publicName: publicNameConsent,
+        }),
       });
       const result = (await response.json().catch(() => ({}))) as {
         checkoutUrl?: string;
@@ -348,7 +401,9 @@ export default function CampaignPage() {
         >
           <div className="campaign-card-head">
             <h2>Ajude o Dante a se recuperar</h2>
-            <span className="campaign-status">{Math.round(percentage)}%</span>
+            <span className="campaign-status">
+              {campaign ? `${Math.round(percentage)}%` : "Atualizando…"}
+            </span>
           </div>
           <div
             className="progress-track"
@@ -356,11 +411,11 @@ export default function CampaignPage() {
             aria-label="Progresso da arrecadação"
             aria-valuemin={0}
             aria-valuemax={goalCents / 100}
-            aria-valuenow={confirmedCents / 100}
+            aria-valuenow={campaign ? confirmedCents / 100 : 0}
           >
             <motion.div
               className="progress-fill"
-              animate={{ width: `${percentage}%` }}
+              animate={{ width: `${campaign ? percentage : 0}%` }}
               transition={{ duration: 0.8 }}
             />
           </div>
@@ -376,7 +431,7 @@ export default function CampaignPage() {
             </div>
             <div className="metric">
               <span>Faltam</span>
-              <strong>{remainingText}</strong>
+              <strong>{campaign ? formatCents(remainingCents) : "Atualizando…"}</strong>
             </div>
           </div>
           <a className="button button-primary" href="#doar">
@@ -685,25 +740,83 @@ export default function CampaignPage() {
             obrigado por fazer parte dessa história.
           </p>
         </div>
-        <div className="supporters-grid">
-          {supporters.map(([name, note], index) => (
-            <motion.div
-              className="supporter-card"
-              key={name}
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -4, scale: 1.01 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ delay: index * 0.04, duration: 0.4 }}
-            >
-              <span className="supporter-icon" aria-hidden="true">🐾</span>
-              <div>
-                <strong>{name}</strong>
-                <small>{note}</small>
-              </div>
-            </motion.div>
-          ))}
+
+        {/* CONTRIBUIÇÕES FINANCEIRAS */}
+        <div className="gratitude-category-block">
+          <h3 className="gratitude-category-title">
+            <span aria-hidden="true">♥</span> Contribuições Financeiras
+          </h3>
+          <div className="supporters-grid">
+            {(() => {
+              const list: [string, string][] = [];
+              const seenNames = new Set<string>();
+
+              // 1. Apoiadores automáticos do banco
+              for (const name of publicFinancialSupporters) {
+                const clean = name.trim();
+                const key = clean.toLowerCase();
+                if (clean && !seenNames.has(key)) {
+                  seenNames.add(key);
+                  list.push([clean, "Contribuição confirmada"]);
+                }
+              }
+
+              // 2. Apoiadores financeiros legados preservados (deduplicados)
+              for (const [name, note] of legacyFinancialSupporters) {
+                const key = name.trim().toLowerCase();
+                if (!seenNames.has(key)) {
+                  seenNames.add(key);
+                  list.push([name, note]);
+                }
+              }
+
+              return list.map(([name, note], index) => (
+                <motion.div
+                  className="supporter-card"
+                  key={`fin-${name}`}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ delay: index * 0.04, duration: 0.4 }}
+                >
+                  <span className="supporter-icon" aria-hidden="true">🐾</span>
+                  <div>
+                    <strong>{name}</strong>
+                    <small>{note}</small>
+                  </div>
+                </motion.div>
+              ));
+            })()}
+          </div>
         </div>
+
+        {/* OUTRAS FORMAS DE APOIO */}
+        <div className="gratitude-category-block">
+          <h3 className="gratitude-category-title">
+            <span aria-hidden="true">★</span> Outras Formas de Apoio
+          </h3>
+          <div className="supporters-grid">
+            {otherSupporters.map(([name, note], index) => (
+              <motion.div
+                className="supporter-card"
+                key={`other-${name}`}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ delay: index * 0.04, duration: 0.4 }}
+              >
+                <span className="supporter-icon" aria-hidden="true">🐾</span>
+                <div>
+                  <strong>{name}</strong>
+                  <small>{note}</small>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
         <div className="gratitude-note">
           <span aria-hidden="true">🐾</span>
           <div>
@@ -887,6 +1000,23 @@ export default function CampaignPage() {
                     placeholder="50"
                   />
                 </div>
+              </div>
+
+              {/* OPÇÃO DE CONSENTIMENTO DE GRATIDÃO */}
+              <div className="mp-consent-group">
+                <label className="mp-consent-label" htmlFor="mp-consent">
+                  <input
+                    id="mp-consent"
+                    type="checkbox"
+                    checked={publicNameConsent}
+                    onChange={(e) => setPublicNameConsent(e.target.checked)}
+                    className="mp-consent-checkbox"
+                  />
+                  <span>Quero aparecer nos agradecimentos com meu primeiro nome</span>
+                </label>
+                <p className="mp-consent-note">
+                  Se você marcar esta opção, mostraremos apenas seu primeiro nome na seção Gratidão.
+                </p>
               </div>
 
               {/* BOTÃO PRINCIPAL COM ÍCONE DE CADEADO */}

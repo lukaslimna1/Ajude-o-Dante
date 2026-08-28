@@ -120,17 +120,25 @@ export const campaignConfig = {
   siteUrl: "https://ajudeodante.vercel.app",
 };
 
-export const supporters: [string, string][] = [
+export const legacyFinancialSupporters: [string, string][] = [
   ["Rosangela", "Nosso agradecimento especial"],
   ["Leticia Mota Leite Martins", "Nosso agradecimento"],
   ["Marina N. Lorenzetti Gil", "Nosso agradecimento"],
   ["Iris Cristina de O. O. Alcarde", "Nosso agradecimento"],
   ["Mattos Max Transporte e Turismo", "Nosso agradecimento"],
+];
+
+export const otherSupporters: [string, string][] = [
   ["Renata Ferreguti", "Família TEA Bauru"],
   ["Clínica Animal House", "Cuidado e atendimento"],
   ["Veterinária Isa", "Cuidado e atendimento"],
   ["Veterinário Vinicius", "Cuidado e atendimento"],
   ["Vereador Júlio Cesar", "Nosso agradecimento"],
+];
+
+export const supporters: [string, string][] = [
+  ...legacyFinancialSupporters,
+  ...otherSupporters,
 ];
 
 export const campaignImages = [

@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,12 +33,46 @@ function isValidSignature(signatureHeader: string | null, requestId: string, dat
   return received.length === calculated.length && timingSafeEqual(received, calculated);
 }
 
+function mapMercadoPagoStatus(mpStatus: string | undefined): "pending" | "approved" | "cancelled" | "refunded" | "rejected" | "charged_back" {
+  switch (mpStatus) {
+    case "approved":
+      return "approved";
+    case "refunded":
+      return "refunded";
+    case "charged_back":
+      return "charged_back";
+    case "cancelled":
+      return "cancelled";
+    case "rejected":
+      return "rejected";
+    case "pending":
+    case "in_process":
+    case "in_mediation":
+    case "authorized":
+    default:
+      return "pending";
+  }
+}
+
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!url || !serviceKey) return null;
+  return createClient(url, serviceKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 export async function POST(request: Request) {
   const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET?.trim();
   const url = new URL(request.url);
   const requestId = request.headers.get("x-request-id") || "";
   const dataId = url.searchParams.get("data.id") || url.searchParams.get("id") || "";
-  const body = await request.json().catch(() => ({})) as { type?: string; action?: string; data?: { id?: string } };
+  const body = await request.json().catch(() => ({})) as {
+    type?: string;
+    action?: string;
+    data?: { id?: string };
+  };
   const bodyDataId = String(body.data?.id || "");
   const effectiveDataId = dataId || bodyDataId;
 
@@ -65,25 +100,97 @@ export async function POST(request: Request) {
     headers: { Authorization: `Bearer ${accessToken}` },
     cache: "no-store",
   });
-  if (!paymentResponse.ok) return NextResponse.json({ error: "Não foi possível confirmar o pagamento." }, { status: 502 });
+  if (!paymentResponse.ok) {
+    return NextResponse.json({ error: "Não foi possível consultar o pagamento na API do Mercado Pago." }, { status: 502 });
+  }
 
   const payment = await paymentResponse.json() as {
     id?: number | string;
     status?: string;
     transaction_amount?: number;
     external_reference?: string;
+    date_approved?: string;
+    date_created?: string;
+    metadata?: { campaign?: string; public_name?: boolean | string };
+    payer?: { first_name?: string; last_name?: string };
+    payment_method_id?: string;
   };
 
-  // A gravação automática fica deliberadamente bloqueada até existir uma tabela
-  // de pagamentos com idempotência aprovada no Supabase. Nunca somar valores
-  // diretamente em dante_campaign a partir de um webhook duplicado.
+  const paymentId = String(payment.id || effectiveDataId);
+  const externalRef = payment.external_reference || "";
+  const metadataCampaign = payment.metadata?.campaign;
+
+  // Validar se o pagamento pertence à campanha Dante
+  const isDanteCampaign = externalRef.startsWith("dante-") || metadataCampaign === "dante";
+  if (!isDanteCampaign) {
+    return NextResponse.json({
+      received: true,
+      verified: true,
+      ignored: true,
+      reason: "Pagamento não pertence à campanha Dante",
+      paymentId,
+    });
+  }
+
+  const status = mapMercadoPagoStatus(payment.status);
+  const amountCents = Math.round(Number(payment.transaction_amount || 0) * 100);
+
+  if (amountCents <= 0) {
+    return NextResponse.json({ error: "Valor de pagamento inválido." }, { status: 400 });
+  }
+
+  // Nome do pagador seguro (sem documento/email/telefone)
+  const firstName = payment.payer?.first_name?.trim() || "";
+  const lastName = payment.payer?.last_name?.trim() || "";
+  const donorName = `${firstName} ${lastName}`.trim() || null;
+
+  const publicNameConsent = Boolean(payment.metadata?.public_name === true || payment.metadata?.public_name === "true");
+  const publicDisplayName = publicNameConsent && firstName ? firstName : null;
+
+  const occurredAt = payment.date_approved || payment.date_created || new Date().toISOString();
+  const dedupeKey = `mercado_pago:${paymentId}`;
+
+  const supabase = getSupabaseAdmin();
+  if (!supabase) {
+    return NextResponse.json({
+      received: true,
+      verified: true,
+      persistedToSupabase: false,
+      error: "Supabase Service Role não configurado no servidor.",
+    }, { status: 500 });
+  }
+
+  const { data: rpcResult, error: rpcError } = await supabase.rpc("register_dante_contribution", {
+    p_dedupe_key: dedupeKey,
+    p_source: "mercado_pago",
+    p_amount_cents: amountCents,
+    p_status: status,
+    p_donor_name: donorName,
+    p_public_name: publicNameConsent && Boolean(publicDisplayName),
+    p_public_display_name: publicDisplayName,
+    p_occurred_at: occurredAt,
+    p_provider: "mercado_pago",
+    p_provider_payment_id: paymentId,
+    p_transaction_id: externalRef || null,
+    p_notes: payment.payment_method_id ? `Método: ${payment.payment_method_id}` : null,
+  });
+
+  if (rpcError) {
+    return NextResponse.json({
+      received: true,
+      verified: true,
+      persistedToSupabase: false,
+      error: rpcError.message,
+    }, { status: 500 });
+  }
+
   return NextResponse.json({
     received: true,
     verified: true,
-    paymentId: payment.id || effectiveDataId,
-    status: payment.status || "unknown",
-    amount: payment.transaction_amount || null,
-    externalReference: payment.external_reference || null,
-    persistedToSupabase: false,
+    persistedToSupabase: true,
+    paymentId,
+    status,
+    amountCents,
+    contribution: rpcResult,
   });
 }
