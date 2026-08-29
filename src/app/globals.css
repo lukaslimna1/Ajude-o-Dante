@@ -900,61 +900,159 @@ button {
   font-size: 0.86rem;
 }
 
-/* TRANSPARÊNCIA + COMPROMISSO + VERIFICAÇÃO ANIMAL HOUSE */
+/* ================================================= */
+/* CENTRAL DE TRANSPARÊNCIA (ACCORDION ELEGANTE)     */
+/* ================================================= */
 .transparency-panel {
   display: flex;
   flex-direction: column;
 }
 
-.transparency-commitment {
-  margin-top: 24px;
-  padding: 22px;
-  border: 1px solid #f0ded3;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #ffffff, #fff9f4);
-  box-shadow: 0 4px 20px rgba(93, 47, 26, 0.03);
+.transparency-intro {
+  margin: 0 0 20px;
 }
 
-.transparency-commitment-header {
+.transparency-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.transparency-accordion-item {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: white;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(93, 47, 26, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.transparency-accordion-item:hover {
+  border-color: #e5cdbf;
+  box-shadow: 0 6px 18px rgba(93, 47, 26, 0.06);
+}
+
+.transparency-accordion-item-open {
+  border-color: #e8cfc2;
+  background: #fffdfb;
+  box-shadow: 0 8px 24px rgba(93, 47, 26, 0.06);
+}
+
+.transparency-accordion-trigger {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  outline: none;
 }
 
-.transparency-commitment-icon {
-  display: inline-grid;
+.transparency-accordion-trigger:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: -2px;
+}
+
+.transparency-trigger-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.transparency-trigger-icon {
+  display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #ffebe0;
-  color: var(--orange-dark);
-  font-size: 13px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--soft);
+  font-size: 1.1rem;
   flex-shrink: 0;
 }
 
-.transparency-commitment-kicker {
-  margin: 0;
+.transparency-trigger-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.transparency-trigger-text strong {
+  font-size: 0.95rem;
+  color: var(--ink);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.transparency-trigger-subtitle {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.transparency-trigger-badge {
+  display: inline-block;
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #ffe3d1;
   color: var(--orange-dark);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
-.transparency-commitment h3 {
-  margin: 0 0 12px;
-  font-size: 1.18rem;
-  letter-spacing: -0.03em;
-  color: var(--ink);
+.transparency-chevron {
+  display: grid;
+  place-items: center;
+  color: #a8948a;
+  transition: transform 0.25s ease, color 0.2s ease;
+  flex-shrink: 0;
 }
 
-.transparency-commitment p {
-  margin: 0 0 12px;
-  color: #5c4a43;
+.transparency-accordion-trigger:hover .transparency-chevron {
+  color: var(--orange-dark);
+}
+
+.transparency-chevron-open {
+  transform: rotate(180deg);
+  color: var(--orange-dark);
+}
+
+.transparency-accordion-body {
+  overflow: hidden;
+}
+
+.transparency-accordion-content {
+  padding: 4px 18px 20px;
+  border-top: 1px solid #f4e8e1;
+  margin-top: 0;
+}
+
+.transparency-accordion-content p {
+  color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.55;
+  margin: 12px 0 0;
+}
+
+/* COMPROMISSO DENTRO DO ACCORDION */
+.transparency-commitment-inner h3 {
+  margin: 14px 0 8px;
+  font-size: 1.12rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
 
 .transparency-commitment-highlight {
@@ -966,11 +1064,11 @@ button {
 }
 
 .transparency-commitment-highlight p {
-  margin: 0;
-  color: #4a2818;
-  font-size: 0.88rem;
-  font-weight: 550;
-  line-height: 1.55;
+  margin: 0 !important;
+  color: #4a2818 !important;
+  font-size: 0.88rem !important;
+  font-weight: 550 !important;
+  line-height: 1.55 !important;
 }
 
 .transparency-commitment-quote {
@@ -998,38 +1096,17 @@ button {
   flex-shrink: 0;
 }
 
-.clinic-verification-box {
-  margin-top: 20px;
-  padding: 22px;
-  border: 1px solid #f0d5c4;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #ffffff, #fff8f3);
-}
-
-.clinic-verification-kicker {
-  margin: 0 0 6px;
-  color: var(--orange-dark);
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.clinic-verification-box h3 {
-  margin: 0 0 8px;
-  font-size: 1.15rem;
-  letter-spacing: -0.03em;
-}
-
-.clinic-verification-box p {
-  margin: 0 0 16px;
-  color: var(--muted);
-  font-size: 0.88rem;
-  line-height: 1.5;
+/* VERIFICAÇÃO DENTRO DO ACCORDION */
+.clinic-verification-inner h3 {
+  margin: 14px 0 8px;
+  font-size: 1.12rem;
+  letter-spacing: -0.02em;
+  color: var(--ink);
 }
 
 .clinic-verification-btn {
   width: 100%;
+  margin-top: 16px;
   color: var(--rust);
   border-color: #e5cdbf;
   background: #ffffff;
@@ -1046,6 +1123,10 @@ button {
   text-align: center;
   font-size: 0.78rem;
   font-weight: 650;
+}
+
+.transparency-documents-list {
+  display: none;
 }
 
 /* ================================================= */

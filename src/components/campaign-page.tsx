@@ -58,6 +58,9 @@ export default function CampaignPage() {
   const [donationAmount, setDonationAmount] = useState("50");
   const [mercadoPagoStatus, setMercadoPagoStatus] = useState("");
   const [mercadoPagoLoading, setMercadoPagoLoading] = useState(false);
+  const [openTransparencyItem, setOpenTransparencyItem] = useState<
+    "documents" | "commitment" | "verification" | null
+  >(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [timelineProgress, setTimelineProgress] = useState(0);
   const [activeTimelineId, setActiveTimelineId] = useState(
@@ -838,72 +841,306 @@ export default function CampaignPage() {
       {/* TRANSPARÊNCIA E PAGAMENTO (PIX + MERCADO PAGO) */}
       <section id="transparencia" className="section container">
         <div className="two-column">
-          {/* PAINEL DE TRANSPARÊNCIA + VERIFICAÇÃO ANIMAL HOUSE */}
+          {/* PAINEL DE TRANSPARÊNCIA (CENTRAL COM ACCORDION) */}
           <div className="soft-panel transparency-panel">
             <p className="section-kicker">Clareza sempre</p>
             <h2>Transparência</h2>
-            <p>
+            <p className="transparency-intro">
               Queremos mostrar com clareza como cada ajuda está sendo utilizada.
               Os comprovantes e atualizações são organizados e publicados aqui
               com total transparência.
             </p>
-            <span
-              className="status-tag"
-              style={{ background: "var(--soft)", color: "var(--orange-dark)" }}
-            >
-              Documentos sendo organizados
-            </span>
 
-            {/* NOSSO COMPROMISSO PÚBLICO */}
-            <div className="transparency-commitment">
-              <div className="transparency-commitment-header">
-                <span className="transparency-commitment-icon" aria-hidden="true">🐾</span>
-                <p className="transparency-commitment-kicker">NOSSO COMPROMISSO</p>
-              </div>
-              <h3>A ajuda não termina no Dante</h3>
-              <p>
-                Todo o valor arrecadado será destinado ao tratamento, internação, medicamentos,
-                exames, alimentação especial, recuperação e acompanhamento do Dante.
-              </p>
-              <div className="transparency-commitment-highlight">
-                <p>
-                  Após a conclusão do tratamento e a quitação de todas as despesas relacionadas
-                  ao caso, se houver saldo remanescente, nós nos comprometemos a destiná-lo integralmente
-                  para ajudar outras famílias que estejam enfrentando uma emergência veterinária.
-                </p>
-              </div>
-              <p className="transparency-commitment-quote">
-                “Assim como tantas pessoas estenderam a mão para nós quando mais precisamos,
-                queremos fazer essa ajuda continuar chegando a quem precisar.”
-              </p>
-              <div className="transparency-commitment-note">
-                <span className="transparency-commitment-note-bullet" aria-hidden="true">●</span>
-                <span>
-                  A destinação de eventual saldo remanescente também será informada aqui,
-                  mantendo a mesma transparência da campanha.
-                </span>
-              </div>
-            </div>
-
-            <div className="clinic-verification-box">
-              <p className="clinic-verification-kicker">VERIFICAÇÃO DO CASO</p>
-              <h3>Quer confirmar as informações?</h3>
-              <p>
-                A Clínica Animal House autorizou o contato direto para quem
-                quiser confirmar informações sobre o caso e o tratamento do
-                Dante.
-              </p>
-              <a
-                href={contacts.animalHouse.getVerificationUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="button button-secondary clinic-verification-btn"
+            <div className="transparency-accordion">
+              {/* ITEM 1: COMPROVANTES */}
+              <div
+                className={`transparency-accordion-item ${
+                  openTransparencyItem === "documents"
+                    ? "transparency-accordion-item-open"
+                    : ""
+                }`}
               >
-                <span>🏥</span> Confirmar com a Animal House
-              </a>
-              <small className="clinic-phone-note">
-                WhatsApp Oficial: {contacts.animalHouse.phone}
-              </small>
+                <button
+                  type="button"
+                  className="transparency-accordion-trigger"
+                  aria-expanded={openTransparencyItem === "documents"}
+                  aria-controls="transparency-content-documents"
+                  id="transparency-trigger-documents"
+                  onClick={() =>
+                    setOpenTransparencyItem(
+                      openTransparencyItem === "documents" ? null : "documents"
+                    )
+                  }
+                >
+                  <div className="transparency-trigger-left">
+                    <span className="transparency-trigger-icon" aria-hidden="true">
+                      📄
+                    </span>
+                    <div className="transparency-trigger-text">
+                      <strong>Comprovantes e prestação de contas</strong>
+                      <span className="transparency-trigger-badge">Em organização</span>
+                    </div>
+                  </div>
+                  <span
+                    className={`transparency-chevron ${
+                      openTransparencyItem === "documents"
+                        ? "transparency-chevron-open"
+                        : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {openTransparencyItem === "documents" && (
+                    <motion.div
+                      id="transparency-content-documents"
+                      role="region"
+                      aria-labelledby="transparency-trigger-documents"
+                      className="transparency-accordion-body"
+                      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+                      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <div className="transparency-accordion-content">
+                        <span
+                          className="status-tag"
+                          style={{
+                            background: "var(--soft)",
+                            color: "var(--orange-dark)",
+                            marginBottom: 12,
+                            display: "inline-block",
+                          }}
+                        >
+                          Documentos sendo organizados
+                        </span>
+                        <p>
+                          Estamos organizando os comprovantes, despesas e atualizações
+                          financeiras do tratamento do Dante. À medida que forem
+                          disponibilizados, eles serão publicados aqui para consulta.
+                        </p>
+                        <div className="transparency-documents-list" aria-hidden="true" />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* ITEM 2: NOSSO COMPROMISSO */}
+              <div
+                className={`transparency-accordion-item ${
+                  openTransparencyItem === "commitment"
+                    ? "transparency-accordion-item-open"
+                    : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="transparency-accordion-trigger"
+                  aria-expanded={openTransparencyItem === "commitment"}
+                  aria-controls="transparency-content-commitment"
+                  id="transparency-trigger-commitment"
+                  onClick={() =>
+                    setOpenTransparencyItem(
+                      openTransparencyItem === "commitment" ? null : "commitment"
+                    )
+                  }
+                >
+                  <div className="transparency-trigger-left">
+                    <span className="transparency-trigger-icon" aria-hidden="true">
+                      🐾
+                    </span>
+                    <div className="transparency-trigger-text">
+                      <strong>Nosso compromisso</strong>
+                      <span className="transparency-trigger-subtitle">
+                        A ajuda não termina no Dante
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    className={`transparency-chevron ${
+                      openTransparencyItem === "commitment"
+                        ? "transparency-chevron-open"
+                        : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {openTransparencyItem === "commitment" && (
+                    <motion.div
+                      id="transparency-content-commitment"
+                      role="region"
+                      aria-labelledby="transparency-trigger-commitment"
+                      className="transparency-accordion-body"
+                      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+                      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <div className="transparency-accordion-content">
+                        <div className="transparency-commitment-inner">
+                          <h3>A ajuda não termina no Dante</h3>
+                          <p>
+                            Todo o valor arrecadado será destinado ao tratamento,
+                            internação, medicamentos, exames, alimentação especial,
+                            recuperação e acompanhamento do Dante.
+                          </p>
+                          <div className="transparency-commitment-highlight">
+                            <p>
+                              Após a conclusão do tratamento e a quitação de todas as
+                              despesas relacionadas ao caso, se houver saldo
+                              remanescente, nós nos comprometemos a destiná-lo
+                              integralmente para ajudar outras famílias que estejam
+                              enfrentando uma emergência veterinária.
+                            </p>
+                          </div>
+                          <p className="transparency-commitment-quote">
+                            “Assim como tantas pessoas estenderam a mão para nós quando
+                            mais precisamos, queremos fazer essa ajuda continuar chegando a
+                            quem precisar.”
+                          </p>
+                          <div className="transparency-commitment-note">
+                            <span
+                              className="transparency-commitment-note-bullet"
+                              aria-hidden="true"
+                            >
+                              ●
+                            </span>
+                            <span>
+                              A destinação de eventual saldo remanescente também será
+                              informada aqui, mantendo a mesma transparência da
+                              campanha.
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* ITEM 3: VERIFICAÇÃO DO CASO */}
+              <div
+                className={`transparency-accordion-item ${
+                  openTransparencyItem === "verification"
+                    ? "transparency-accordion-item-open"
+                    : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="transparency-accordion-trigger"
+                  aria-expanded={openTransparencyItem === "verification"}
+                  aria-controls="transparency-content-verification"
+                  id="transparency-trigger-verification"
+                  onClick={() =>
+                    setOpenTransparencyItem(
+                      openTransparencyItem === "verification"
+                        ? null
+                        : "verification"
+                    )
+                  }
+                >
+                  <div className="transparency-trigger-left">
+                    <span className="transparency-trigger-icon" aria-hidden="true">
+                      🏥
+                    </span>
+                    <div className="transparency-trigger-text">
+                      <strong>Verificação do caso</strong>
+                      <span className="transparency-trigger-subtitle">
+                        Confirme diretamente com a Animal House
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    className={`transparency-chevron ${
+                      openTransparencyItem === "verification"
+                        ? "transparency-chevron-open"
+                        : ""
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {openTransparencyItem === "verification" && (
+                    <motion.div
+                      id="transparency-content-verification"
+                      role="region"
+                      aria-labelledby="transparency-trigger-verification"
+                      className="transparency-accordion-body"
+                      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+                      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <div className="transparency-accordion-content">
+                        <div className="clinic-verification-inner">
+                          <h3>Quer confirmar as informações?</h3>
+                          <p>
+                            A Clínica Animal House autorizou o contato direto para quem
+                            quiser confirmar informações sobre o caso e o tratamento do
+                            Dante.
+                          </p>
+                          <a
+                            href={contacts.animalHouse.getVerificationUrl()}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="button button-secondary clinic-verification-btn"
+                          >
+                            <span>🏥</span> Confirmar com a Animal House
+                          </a>
+                          <small className="clinic-phone-note">
+                            WhatsApp Oficial: {contacts.animalHouse.phone}
+                          </small>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
