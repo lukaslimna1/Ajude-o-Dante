@@ -96,11 +96,17 @@ export default function CampaignPage() {
 
     async function fetchSupporters() {
       if (!supabase) return;
-      const { data, error } = await supabase.rpc("get_dante_public_financial_supporters");
-      if (active && !error && Array.isArray(data)) {
-        const names = data.map((item: { display_name?: string } | string) =>
-          typeof item === "string" ? item : item.display_name || ""
-        ).filter(Boolean);
+      let res = await supabase.rpc("get_dante_public_supporters");
+      if (res.error) {
+        // Fallback for transition compatibility
+        res = await supabase.rpc("get_dante_public_financial_supporters");
+      }
+      if (active && !res.error && Array.isArray(res.data)) {
+        const names = res.data
+          .map((item: { display_name?: string } | string) =>
+            typeof item === "string" ? item : item.display_name || ""
+          )
+          .filter(Boolean);
         setPublicFinancialSupporters(names);
       }
     }
