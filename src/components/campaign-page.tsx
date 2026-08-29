@@ -741,12 +741,18 @@ export default function CampaignPage() {
 
         <div className="supporters-grid">
           {(() => {
-            const list: [string, string, boolean][] = [];
+            const list: { name: string; note: string; variant: "special" | "clinic" | "default" }[] = [];
             const seenNames = new Set<string>();
             const initialNotesMap = new Map<string, string>();
             for (const [name, note] of initialSupporters) {
               initialNotesMap.set(name.trim().toLowerCase(), note);
             }
+
+            const getVariant = (key: string): "special" | "clinic" | "default" => {
+              if (key === "rosangela") return "special";
+              if (key.includes("animal house")) return "clinic";
+              return "default";
+            };
 
             // 1. Apoiadores automáticos do banco
             for (const name of publicFinancialSupporters) {
@@ -755,8 +761,7 @@ export default function CampaignPage() {
               if (clean && !seenNames.has(key)) {
                 seenNames.add(key);
                 const note = initialNotesMap.get(key) || "Nosso agradecimento de coração.";
-                const isSpecial = key === "rosangela";
-                list.push([clean, note, isSpecial]);
+                list.push({ name: clean, note, variant: getVariant(key) });
               }
             }
 
@@ -765,28 +770,51 @@ export default function CampaignPage() {
               const key = name.trim().toLowerCase();
               if (!seenNames.has(key)) {
                 seenNames.add(key);
-                const isSpecial = key === "rosangela";
-                list.push([name, note, isSpecial]);
+                list.push({ name, note, variant: getVariant(key) });
               }
             }
 
-            return list.map(([name, note, isSpecial], index) => (
-              <motion.div
-                className={isSpecial ? "supporter-card supporter-card-special" : "supporter-card"}
-                key={`supporter-${name}`}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -4, scale: 1.01 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ delay: index * 0.03, duration: 0.4 }}
-              >
-                <span className="supporter-icon" aria-hidden="true">🐾</span>
-                <div>
-                  <strong>{name}</strong>
-                  <small>{note}</small>
-                </div>
-              </motion.div>
-            ));
+            // 3. Ordenação fixa por prioridade:
+            // 0: Rosangela (1º)
+            // 1: Clínica Animal House (2º)
+            // 100: Demais apoiadores (preserva ordem relativa estável)
+            const getPriority = (name: string) => {
+              const key = name.trim().toLowerCase();
+              if (key === "rosangela") return 0;
+              if (key.includes("animal house")) return 1;
+              return 100;
+            };
+
+            const sortedList = [...list].sort((a, b) => getPriority(a.name) - getPriority(b.name));
+
+            return sortedList.map((item, index) => {
+              let cardClass = "supporter-card";
+              if (item.variant === "special") {
+                cardClass += " supporter-card-special";
+              } else if (item.variant === "clinic") {
+                cardClass += " supporter-card-clinic";
+              }
+
+              return (
+                <motion.div
+                  className={cardClass}
+                  key={`supporter-${item.name}`}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ delay: index * 0.03, duration: 0.4 }}
+                >
+                  <span className="supporter-icon" aria-hidden="true">
+                    {item.variant === "clinic" ? "🏥" : "🐾"}
+                  </span>
+                  <div>
+                    <strong>{item.name}</strong>
+                    <small>{item.note}</small>
+                  </div>
+                </motion.div>
+              );
+            });
           })()}
         </div>
 

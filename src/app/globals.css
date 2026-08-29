@@ -1920,3 +1920,20 @@ button {
   color: var(--orange-dark);
   font-weight: 600;
 }
+
+/* DESTAQUE SUAVE COMPLEMENTAR DA CLÍNICA ANIMAL HOUSE */
+.supporter-card-clinic {
+  border-color: #d1e7dd;
+  background: linear-gradient(135deg, #ffffff, #f7fbf9);
+  box-shadow: 0 8px 24px rgba(20, 108, 67, 0.06);
+}
+
+.supporter-card-clinic .supporter-icon {
+  background: #e8f5e9;
+  color: #198754;
+}
+
+.supporter-card-clinic small {
+  color: #198754;
+  font-weight: 600;
+}
