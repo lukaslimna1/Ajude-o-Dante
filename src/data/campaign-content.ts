@@ -32,7 +32,7 @@ export const faqItems: FaqItem[] = [
   {
     question: "Para onde vai o dinheiro arrecadado?",
     answer:
-      "Todo o valor é integralmente destinado aos custos do tratamento do Dante: exames laboratoriais e de imagem, procedimento cirúrgico, diárias de internação 24h, medicamentos, alimentação especial e consultas de acompanhamento pós-operatório.",
+      "Todo o valor arrecadado é destinado aos custos do tratamento e da recuperação do Dante, incluindo exames, cirurgia, internação, medicamentos, alimentação especial e acompanhamento. Após a conclusão do tratamento e a quitação de todas as despesas relacionadas ao caso, se houver saldo remanescente, ele será destinado integralmente para ajudar outras famílias que estejam enfrentando uma emergência veterinária. Essa destinação também será informada no site.",
   },
   {
     question: "Qualquer valor ajuda?",

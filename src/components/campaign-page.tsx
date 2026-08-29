@@ -854,6 +854,37 @@ export default function CampaignPage() {
               Documentos sendo organizados
             </span>
 
+            {/* NOSSO COMPROMISSO PÚBLICO */}
+            <div className="transparency-commitment">
+              <div className="transparency-commitment-header">
+                <span className="transparency-commitment-icon" aria-hidden="true">🐾</span>
+                <p className="transparency-commitment-kicker">NOSSO COMPROMISSO</p>
+              </div>
+              <h3>A ajuda não termina no Dante</h3>
+              <p>
+                Todo o valor arrecadado será destinado ao tratamento, internação, medicamentos,
+                exames, alimentação especial, recuperação e acompanhamento do Dante.
+              </p>
+              <div className="transparency-commitment-highlight">
+                <p>
+                  Após a conclusão do tratamento e a quitação de todas as despesas relacionadas
+                  ao caso, se houver saldo remanescente, nós nos comprometemos a destiná-lo integralmente
+                  para ajudar outras famílias que estejam enfrentando uma emergência veterinária.
+                </p>
+              </div>
+              <p className="transparency-commitment-quote">
+                “Assim como tantas pessoas estenderam a mão para nós quando mais precisamos,
+                queremos fazer essa ajuda continuar chegando a quem precisar.”
+              </p>
+              <div className="transparency-commitment-note">
+                <span className="transparency-commitment-note-bullet" aria-hidden="true">●</span>
+                <span>
+                  A destinação de eventual saldo remanescente também será informada aqui,
+                  mantendo a mesma transparência da campanha.
+                </span>
+              </div>
+            </div>
+
             <div className="clinic-verification-box">
               <p className="clinic-verification-kicker">VERIFICAÇÃO DO CASO</p>
               <h3>Quer confirmar as informações?</h3>
