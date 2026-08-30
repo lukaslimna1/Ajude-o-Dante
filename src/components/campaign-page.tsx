@@ -15,6 +15,7 @@ import {
 import { currentStatusEvent, timelineEvents } from "@/data/dante-timeline";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
 import RaffleSection from "@/components/raffle-section";
+import VisitUpdateSection from "@/components/visit-update-section";
 
 const money = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -449,6 +450,40 @@ export default function CampaignPage() {
         </motion.div>
       </section>
 
+      {/* NOVA CHAMADA DE ATUALIZAÇÃO • HOJE */}
+      <div className="container" style={{ marginTop: "-0.5rem", marginBottom: "2rem" }}>
+        <a
+          href="#atualizacao-recente"
+          className="group block p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-slate-900/90 to-emerald-950/80 border border-emerald-500/40 hover:border-emerald-400/80 shadow-lg shadow-emerald-950/40 transition-all"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start sm:items-center gap-3">
+              <span className="text-2xl sm:text-3xl p-2 rounded-xl bg-emerald-500/20 border border-emerald-500/30 shrink-0">
+                🐾
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    Nova Atualização • Hoje
+                  </span>
+                  <span className="text-xs text-slate-400">29 de Agosto</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-300 transition-colors mt-0.5">
+                  Dante está se recuperando 💚
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300">
+                  Fomos visitá-lo hoje e a alta está prevista para segunda-feira.
+                </p>
+              </div>
+            </div>
+            <div className="shrink-0 flex items-center gap-1.5 text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition-transform">
+              <span>Ver atualização do Dante</span>
+              <span>→</span>
+            </div>
+          </div>
+        </a>
+      </div>
+
       {/* SOBRE */}
       <section id="sobre" className="section container">
         <div className="two-column">
@@ -478,18 +513,15 @@ export default function CampaignPage() {
                 ["♥", "Pós-tratamento", "Recuperação com carinho e segurança."],
                 ["↻", "Acompanhamento", "Novas consultas quando necessário."],
               ].map(([icon, title, text], index) => (
-                <motion.div
-                  className="care-card"
-                  key={title}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.25 }}
-                  transition={{ delay: index * 0.04, duration: 0.4 }}
-                >
-                  <div className="fact-icon" aria-hidden="true">{icon}</div>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </motion.div>
+                <div key={index} className="care-card">
+                  <span className="care-icon" aria-hidden="true">
+                    {icon}
+                  </span>
+                  <div>
+                    <strong>{title}</strong>
+                    <p>{text}</p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -509,8 +541,8 @@ export default function CampaignPage() {
         <div className="status-grid">
           <div className="status-photo">
             <Image
-              src="/images/Usar/Fotos/Dante 06.png"
-              alt="Foto real do Dante recebendo cuidados"
+              src="/images/Usar/Fotos/02.jpeg"
+              alt="Dante durante visita de atualização após a cirurgia"
               fill
               sizes="(max-width: 900px) 100vw, 35vw"
             />
@@ -535,6 +567,9 @@ export default function CampaignPage() {
           </div>
         </div>
       </section>
+
+      {/* SEÇÃO DA VISITA DE HOJE COM GALERIA DE FOTOS E VÍDEO */}
+      <VisitUpdateSection />
 
       {/* LINHA DO TEMPO */}
       <section className="section container">

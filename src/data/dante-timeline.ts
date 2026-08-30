@@ -91,8 +91,19 @@ export const timelineEvents: TimelineEvent[] = [
     summary: "A Clínica Animal House informou que a cirurgia foi realizada com sucesso. Dante está estável e em recuperação.",
     description: "A Clínica Animal House informou que o procedimento cirúrgico do Dante foi realizado com sucesso.\n\nDante está bem, estável e em recuperação, permanecendo sob acompanhamento da equipe veterinária.\n\nNeste momento, seguimos aguardando sua evolução no pós-operatório e novas informações da clínica.",
     type: "status",
+    isCurrentStatus: false,
+    statusLabel: "Cirurgia concluída com sucesso",
+  },
+  {
+    id: "2026-08-29-visita-dante",
+    date: "29/08/2026",
+    time: "Hoje",
+    title: "Fomos visitar o Dante 💚",
+    summary: "Hoje conseguimos passar um tempo com o Dante e acompanhar de perto sua recuperação depois da cirurgia. Alta prevista para segunda-feira.",
+    description: "Hoje conseguimos passar um tempo com o Dante e acompanhar de perto sua recuperação depois da cirurgia. Ele segue recebendo os cuidados necessários e, neste momento, a alta está prevista para segunda-feira.\n\nRegistramos essa visita em fotos e vídeo para que todo mundo que está ajudando também possa acompanhar de perto a recuperação dele.\n\nA cirurgia passou, mas nossa campanha ainda não terminou. Ainda temos despesas do tratamento, internação, medicamentos, alimentação diferenciada e os cuidados que ele vai precisar depois de voltar para casa.\n\nToda ajuda continua fazendo diferença para o Dante. 💚🐾",
+    type: "status",
     isCurrentStatus: true,
-    statusLabel: "Estável · Em recuperação pós-cirúrgica",
+    statusLabel: "Recuperação · Alta prevista para segunda-feira",
   },
 ];
 

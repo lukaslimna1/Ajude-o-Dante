@@ -144,10 +144,67 @@ export const otherSupporters: [string, string][] = [];
 export const supporters: [string, string][] = initialSupporters;
 
 export const campaignImages = [
+  { src: "/images/Usar/Fotos/02.jpeg", alt: "Dante durante visita de atualização após a cirurgia" },
+  { src: "/images/Usar/Fotos/03.jpeg", alt: "Dante recebendo carinho durante visita na clínica" },
+  { src: "/images/Usar/Fotos/04.jpeg", alt: "Dante em repouso e recuperação" },
+  { src: "/images/Usar/Fotos/05.jpeg", alt: "Dante deitado confortavelmente durante o pós-operatório" },
+  { src: "/images/Usar/Fotos/01.jpeg", alt: "Registro espontâneo do Dante durante a visita" },
   { src: "/images/Usar/Fotos/Dante 01  (3).png", alt: "Foto real do Dante recebendo carinho" },
-  { src: "/images/Usar/Fotos/Dante 03.png", alt: "Foto real do Dante" },
-  { src: "/images/Usar/Fotos/Dante 04.png", alt: "Foto real do Dante" },
-  { src: "/images/Usar/Fotos/Dante 05.png", alt: "Foto real do Dante" },
   { src: "/images/Usar/Fotos/Dante no carrinho.jpeg", alt: "Foto real do Dante recebendo cuidados" },
   { src: "/images/Usar/Fotos/Animal House - Fachada.jpeg", alt: "Fachada da Clínica Animal House" },
 ];
+
+export const danteLatestVisit = {
+  badge: "NOVA ATUALIZAÇÃO • HOJE",
+  heading: "Dante está se recuperando 💚",
+  subheading: "Fomos visitá-lo hoje e a alta está prevista para segunda-feira.",
+  title: "Fomos visitar o Dante 💚",
+  paragraphs: [
+    "Hoje conseguimos passar um tempo com o Dante e acompanhar de perto sua recuperação depois da cirurgia. Ele segue recebendo os cuidados necessários e, neste momento, a alta está prevista para segunda-feira.",
+    "Registramos essa visita em fotos e vídeo para que todo mundo que está ajudando também possa acompanhar de perto a recuperação dele.",
+    "A cirurgia passou, mas nossa campanha ainda não terminou. Ainda temos despesas do tratamento, internação, medicamentos, alimentação diferenciada e os cuidados que ele vai precisar depois de voltar para casa.",
+    "Toda ajuda continua fazendo diferença para o Dante. 💚🐾",
+  ],
+  primaryPhoto: {
+    src: "/images/Usar/Fotos/02.jpeg",
+    alt: "Dante durante visita de atualização após a cirurgia",
+  },
+  photos: [
+    {
+      id: "02",
+      src: "/images/Usar/Fotos/02.jpeg",
+      alt: "Dante durante visita de atualização após a cirurgia",
+      label: "Foto principal",
+    },
+    {
+      id: "03",
+      src: "/images/Usar/Fotos/03.jpeg",
+      alt: "Dante recebendo carinho durante visita na clínica",
+      label: "Carinho e afeto",
+    },
+    {
+      id: "04",
+      src: "/images/Usar/Fotos/04.jpeg",
+      alt: "Dante em repouso e recuperação",
+      label: "Repouso",
+    },
+    {
+      id: "05",
+      src: "/images/Usar/Fotos/05.jpeg",
+      alt: "Dante deitado confortavelmente durante o pós-operatório",
+      label: "Pós-operatório",
+    },
+    {
+      id: "01",
+      src: "/images/Usar/Fotos/01.jpeg",
+      alt: "Registro espontâneo do Dante durante a visita",
+      label: "Registro espontâneo",
+    },
+  ],
+  video: {
+    src: "/images/Usar/Video/Dante - Visita.mp4",
+    poster: "/images/Usar/Fotos/02.jpeg",
+    title: "Vídeo da visita ao Dante durante a recuperação",
+    description: "Registro real do Dante recebendo cuidados e carinho hoje na clínica.",
+  },
+};
