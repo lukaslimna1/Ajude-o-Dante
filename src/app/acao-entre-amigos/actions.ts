@@ -248,7 +248,7 @@ export async function reserveRaffleNumbers({
     });
 
     const projectWhatsapp = "5514988025296";
-    const whatsappMessage = `Olá! Estou participando da Ação entre Amigos pelo Dante 🐾\n\nPedido: ${orderCode}\nNome: ${sanitizedName}\nNúmeros: ${formattedNumbers}\nValor: ${totalFormatted}\n\nVou enviar o comprovante do Pix nesta conversa.`;
+    const whatsappMessage = `Olá! Acabei de realizar o pagamento da Ação entre Amigos pelo Dante 🐾💚\n\n👤 Nome: ${sanitizedName}\n🎟️ Pedido: ${orderCode}\n🔢 Número(s): ${formattedNumbers}\n💰 Valor: ${totalFormatted}\n\n📎 Vou anexar o comprovante de pagamento nesta conversa para conferência.\n\nAguardo a confirmação dos meus números. Obrigado por ajudar o Dante! 💚`;
     const whatsappUrl = `https://wa.me/${projectWhatsapp}?text=${encodeURIComponent(
       whatsappMessage
     )}`;

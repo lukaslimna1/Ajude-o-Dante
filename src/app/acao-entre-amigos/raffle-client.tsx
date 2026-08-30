@@ -44,7 +44,6 @@ export default function RaffleClient({
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
   const [copied, setCopied] = useState(false);
   const [tvPhoto, setTvPhoto] = useState<"frente" | "verso">("frente");
-  const [proofSentSuccess, setProofSentSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -164,6 +163,8 @@ export default function RaffleClient({
     });
   };
 
+  const [copiedDetails, setCopiedDetails] = useState(false);
+
   const handleCopyPix = () => {
     if (!activeOrder?.pixPayload) return;
     navigator.clipboard.writeText(activeOrder.pixPayload);
@@ -171,21 +172,39 @@ export default function RaffleClient({
     setTimeout(() => setCopied(false), 3000);
   };
 
-  const handleMarkProofSent = () => {
+  const handleOpenWhatsAppAndMarkProof = () => {
     if (!activeOrder) return;
-    startTransition(async () => {
-      const res = await markRaffleProofSent({
-        orderCode: activeOrder.orderCode,
-        token: activeOrder.token,
-      });
 
-      if (res.success) {
-        setActiveOrder((prev) => (prev ? { ...prev, status: "awaiting_confirmation" } : null));
-        setProofSentSuccess(true);
-      } else {
-        setErrorMessage(res.error || "Não foi possível atualizar o status do pedido.");
-      }
-    });
+    // 1. Abre o WhatsApp com a mensagem preenchida
+    window.open(activeOrder.whatsappUrl, "_blank");
+
+    // 2. Registra o status awaiting_confirmation no banco
+    if (activeOrder.status !== "awaiting_confirmation") {
+      startTransition(async () => {
+        const res = await markRaffleProofSent({
+          orderCode: activeOrder.orderCode,
+          token: activeOrder.token,
+        });
+
+        if (res.success) {
+          setActiveOrder((prev) => (prev ? { ...prev, status: "awaiting_confirmation" } : null));
+          setProofSentSuccess(true);
+        } else {
+          setErrorMessage(res.error || "Não foi possível atualizar o status do pedido.");
+        }
+      });
+    }
+  };
+
+  const handleCopyOrderDetails = () => {
+    if (!activeOrder) return;
+    const formattedNumbers = activeOrder.numbers
+      .map((n) => n.toString().padStart(3, "0"))
+      .join(", ");
+    const text = `Ação entre Amigos pelo Dante 🐾💚\nPedido: ${activeOrder.orderCode}\nNome: ${customerName}\nNúmeros: ${formattedNumbers}\nValor: ${formatCents(activeOrder.totalCents)}\nWhatsApp para envio do comprovante: (14) 98802-5296`;
+    navigator.clipboard.writeText(text);
+    setCopiedDetails(true);
+    setTimeout(() => setCopiedDetails(false), 3000);
   };
 
   const totalSelectedCents = selectedNumbers.length * priceCents;
@@ -672,36 +691,68 @@ export default function RaffleClient({
               </div>
             </div>
 
-            {/* Primary Action: Send to WhatsApp */}
-            <div className="space-y-3 pt-2">
-              <a
-                href={activeOrder.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/25 transition active:scale-95 flex items-center justify-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.067-2.023-.483-1.696-.703-2.775-2.434-2.86-2.546-.084-.112-.684-.912-.684-1.739 0-.828.432-1.233.586-1.391.154-.157.337-.197.45-.197.113 0 .225.001.324.006.104.005.244-.04.382.291.144.347.491 1.2.534 1.288.043.088.072.19.014.303-.058.113-.088.184-.174.285-.087.102-.183.228-.261.306-.088.087-.179.182-.077.357.102.174.453.748.972 1.211.669.596 1.233.78 1.408.868.174.087.277.073.379-.044.103-.117.437-.51.554-.685.116-.175.234-.146.393-.088.16.059 1.01.476 1.183.563.174.088.29.131.334.204.043.073.043.424-.101.829z" />
-                </svg>
-                Enviar Comprovante pelo WhatsApp
-              </a>
+            {/* Aviso Importante sobre Anexo do Comprovante */}
+            <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 space-y-2 text-xs">
+              <div className="flex items-center gap-2 font-bold text-amber-300">
+                <span className="text-base">📎</span>
+                <span>IMPORTANTE: Anexe o Comprovante no WhatsApp</span>
+              </div>
+              <p className="text-slate-300 leading-relaxed">
+                Ao clicar no botão abaixo, o WhatsApp abrirá com os dados do seu pedido preenchidos.
+                <strong className="text-amber-200 block mt-1">
+                  Não esqueça de anexar a imagem ou PDF do comprovante do Pix antes de enviar a mensagem
+                </strong>
+                para que possamos conferir e confirmar seus números na grade oficial.
+              </p>
+            </div>
 
-              {/* Mark Proof Sent Button */}
-              {activeOrder.status !== "awaiting_confirmation" ? (
-                <button
-                  onClick={handleMarkProofSent}
-                  disabled={isPending}
-                  className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold border border-white/10 transition"
-                >
-                  {isPending ? "Atualizando..." : "Já enviei meu comprovante"}
-                </button>
-              ) : (
-                <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center text-xs text-amber-300 font-medium">
-                  {proofSentSuccess
-                    ? "✓ Comprovante registrado! O prazo foi estendido para conferência administrativa."
-                    : "Aguardando conferência do comprovante pela equipe do Dante."}
+            {/* Primary Action Button */}
+            <div className="space-y-3 pt-2">
+              <button
+                type="button"
+                onClick={handleOpenWhatsAppAndMarkProof}
+                disabled={isPending}
+                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-sm shadow-xl shadow-emerald-500/25 transition active:scale-[0.98] flex flex-col items-center justify-center gap-0.5"
+              >
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.067-2.023-.483-1.696-.703-2.775-2.434-2.86-2.546-.084-.112-.684-.912-.684-1.739 0-.828.432-1.233.586-1.391.154-.157.337-.197.45-.197.113 0 .225.001.324.006.104.005.244-.04.382.291.144.347.491 1.2.534 1.288.043.088.072.19.014.303-.058.113-.088.184-.174.285-.087.102-.183.228-.261.306-.088.087-.179.182-.077.357.102.174.453.748.972 1.211.669.596 1.233.78 1.408.868.174.087.277.073.379-.044.103-.117.437-.51.554-.685.116-.175.234-.146.393-.088.16.059 1.01.476 1.183.563.174.088.29.131.334.204.043.073.043.424-.101.829z" />
+                  </svg>
+                  <span>JÁ PAGUEI — ENVIAR COMPROVANTE NO WHATSAPP</span>
+                </div>
+                <span className="text-[11px] font-medium text-slate-900/80">
+                  Anexe o comprovante antes de enviar a mensagem
+                </span>
+              </button>
+
+              {/* Status Indicator */}
+              {activeOrder.status === "awaiting_confirmation" && (
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center text-xs text-amber-300 font-medium animate-in fade-in">
+                  ✓ Comprovante informado! Seus números estão bloqueados e aguardando conferência pela equipe do Dante.
                 </div>
               )}
+
+              {/* Fallback Box */}
+              <div className="pt-3 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+                <span>
+                  WhatsApp para envio:{" "}
+                  <a
+                    href="https://wa.me/5514988025296"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-emerald-400 font-mono underline"
+                  >
+                    (14) 98802-5296
+                  </a>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyOrderDetails}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 transition font-medium text-xs flex items-center gap-1.5"
+                >
+                  {copiedDetails ? "✓ Dados Copiados!" : "📋 Copiar Dados do Pedido"}
+                </button>
+              </div>
             </div>
           </section>
         )}
