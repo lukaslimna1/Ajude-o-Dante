@@ -29,8 +29,6 @@ const navItems: NavItem[] = [
     label: "Ação entre Amigos",
     href: "/adm/acao-entre-amigos",
     icon: "🎟️",
-    badge: "Em breve",
-    disabled: true,
   },
   {
     label: "Timeline e Transparência",
