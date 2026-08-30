@@ -188,7 +188,6 @@ export default function RaffleClient({
 
         if (res.success) {
           setActiveOrder((prev) => (prev ? { ...prev, status: "awaiting_confirmation" } : null));
-          setProofSentSuccess(true);
         } else {
           setErrorMessage(res.error || "Não foi possível atualizar o status do pedido.");
         }
