@@ -43,6 +43,7 @@ export default function RaffleClient({
   const [step, setStep] = useState<"grid" | "form" | "checkout">("grid");
   const [activeOrder, setActiveOrder] = useState<ActiveOrder | null>(null);
   const [copied, setCopied] = useState(false);
+  const [tvPhoto, setTvPhoto] = useState<"frente" | "verso">("frente");
   const [proofSentSuccess, setProofSentSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -249,15 +250,30 @@ export default function RaffleClient({
                 </p>
 
                 {/* Prize Specs Pills */}
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
-                    📺 43 Polegadas Full HD
+                <div className="flex flex-wrap gap-1.5 pt-2">
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                    📺 43&quot; Full HD (1920×1080)
                   </span>
-                  <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                    🤖 Android TV / Smart TV
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
                     🏷️ Modelo: 43S5300
                   </span>
-                  <span className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
-                    ⚡ Smart TV com Wi-Fi
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                    💡 Painel LED • 60Hz HDR
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                    📶 Wi-Fi &amp; Bluetooth
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                    🔌 2 HDMI • 1 USB • LAN
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                    📡 Conversor Digital
+                  </span>
+                  <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-medium text-slate-300">
+                    🔊 Dolby Digital Plus (2×8W)
                   </span>
                 </div>
 
@@ -279,24 +295,77 @@ export default function RaffleClient({
               </div>
 
               <div className="md:col-span-5 flex flex-col items-center">
-                {/* Visual TV Frame with Real Photo */}
-                <div className="w-full max-w-[320px] rounded-2xl bg-black/60 border border-white/15 p-3 shadow-2xl relative group">
-                  <div className="aspect-video rounded-xl bg-slate-900 overflow-hidden relative border border-white/10 flex items-center justify-center">
+                {/* Visual TV Frame with Real Photos & Interactive Gallery */}
+                <div className="w-full max-w-[360px] rounded-2xl bg-black/70 border border-white/15 p-3.5 shadow-2xl relative">
+                  {/* Photo Badge Header */}
+                  <div className="flex items-center justify-between pb-2.5 px-1 border-b border-white/10 mb-2.5">
+                    <span className="text-[10px] font-bold tracking-wider text-amber-400 uppercase flex items-center gap-1.5">
+                      <span>📸</span> Fotos reais do prêmio
+                    </span>
+                    <span className="text-[11px] text-slate-400">
+                      {tvPhoto === "frente" ? "Foto Frontal" : "Foto Traseira"}
+                    </span>
+                  </div>
+
+                  {/* Image Viewport (object-contain to preserve full TV without cropping) */}
+                  <div className="aspect-[4/3] rounded-xl bg-slate-950 overflow-hidden relative border border-white/10 flex items-center justify-center p-2">
                     <Image
-                      src="/Rifa/TV Frente.png"
-                      alt="Smart TV SEMP TCL 43 polegadas Modelo 43S5300"
+                      src={tvPhoto === "frente" ? "/Rifa/TV Frente.jpg" : "/Rifa/TV Verso.jpg"}
+                      alt={
+                        tvPhoto === "frente"
+                          ? "Smart TV SEMP TCL 43 polegadas - prêmio da Ação entre Amigos pelo Dante"
+                          : "Verso da Smart TV SEMP TCL 43 polegadas - prêmio da Ação entre Amigos pelo Dante"
+                      }
                       fill
-                      sizes="(max-width: 768px) 100vw, 320px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, 360px"
+                      className="object-contain transition-all duration-300"
                       priority
                     />
                   </div>
-                  <div className="mt-3 flex items-center justify-between px-1">
+
+                  {/* Gallery Toggle Pills */}
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setTvPhoto("frente")}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                        tvPhoto === "frente"
+                          ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold"
+                          : "bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10"
+                      }`}
+                    >
+                      <span>📺</span> Frente
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTvPhoto("verso")}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                        tvPhoto === "verso"
+                          ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold"
+                          : "bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10"
+                      }`}
+                    >
+                      <span>🔌</span> Traseira
+                    </button>
+                  </div>
+
+                  {/* Prize Details Card Footer */}
+                  <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between px-1">
                     <div>
-                      <span className="text-white text-xs font-bold block">Smart TV SEMP 43&quot;</span>
-                      <span className="text-[11px] text-slate-400">Modelo: 43S5300 Full HD</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Prêmio da Ação
+                      </span>
+                      <strong className="text-white text-xs font-bold block">
+                        Smart TV SEMP TCL 43&quot;
+                      </strong>
+                      <span className="text-[11px] text-slate-400">
+                        Modelo: 43S5300 • Full HD
+                      </span>
                     </div>
-                    <span className="text-lg font-extrabold text-amber-400">R$ 15,00</span>
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 block">Valor por número</span>
+                      <span className="text-base font-extrabold text-amber-400">R$ 15,00</span>
+                    </div>
                   </div>
                 </div>
               </div>

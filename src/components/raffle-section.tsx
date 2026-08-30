@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { contacts, raffleInfo } from "@/data/campaign-content";
 
 export default function RaffleSection() {
@@ -8,43 +9,35 @@ export default function RaffleSection() {
       <div className="raffle-header">
         <div>
           <p className="section-kicker">{raffleInfo.title}</p>
-          <h2>{raffleInfo.heading}</h2>
+          <h2>Ação entre Amigos pelo Dante</h2>
         </div>
-        <span className="status-tag raffle-badge">{raffleInfo.badge}</span>
+        <span className="status-tag raffle-badge">Em Preparação</span>
       </div>
 
       <div className="raffle-tv-preview">
-        <div className="raffle-tv-screen" aria-hidden="true">
-          <svg
-            className="raffle-tv-icon"
-            viewBox="0 0 24 24"
-            width="48"
-            height="48"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
-            <polyline points="17 2 12 7 7 2" />
-          </svg>
-          <span className="raffle-tv-label">Foto do prêmio em breve</span>
+        <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-950 border border-white/10 flex items-center justify-center p-2">
+          <Image
+            src="/Rifa/TV Frente.jpg"
+            alt="Smart TV SEMP TCL 43 polegadas - prêmio da Ação entre Amigos pelo Dante"
+            fill
+            sizes="(max-width: 768px) 100vw, 480px"
+            className="object-contain"
+          />
         </div>
       </div>
 
       <div className="raffle-info-grid">
         <div className="raffle-info-pill">
           <span className="raffle-pill-label">Prêmio</span>
-          <strong>TV</strong>
+          <strong>Smart TV 43&quot; Full HD</strong>
         </div>
         <div className="raffle-info-pill">
-          <span className="raffle-pill-label">Status</span>
-          <strong>Em preparação</strong>
+          <span className="raffle-pill-label">Modelo</span>
+          <strong>SEMP TCL 43S5300</strong>
         </div>
         <div className="raffle-info-pill">
-          <span className="raffle-pill-label">Detalhes</span>
-          <strong>Em breve</strong>
+          <span className="raffle-pill-label">Valor do Número</span>
+          <strong>R$ 15,00</strong>
         </div>
       </div>
 
