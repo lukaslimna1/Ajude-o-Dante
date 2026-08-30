@@ -70,6 +70,17 @@ export default function CampaignPage() {
   );
   const [visitedTimelineIds, setVisitedTimelineIds] = useState<string[]>([]);
   const [expandedTimelineIds, setExpandedTimelineIds] = useState<string[]>([]);
+  // Mídia do evento atual (fotos + vídeo do banco)
+  const [mediaForCurrentEvent, setMediaForCurrentEvent] = useState<{
+    id: string;
+    media_type: "image" | "video";
+    url: string;
+    alt_text: string;
+    caption: string | null;
+    poster_url: string | null;
+    is_primary: boolean;
+    sort_order: number;
+  }[]>([]);
 
   const activeStatusEvent = useMemo(() => {
     return (
@@ -125,7 +136,7 @@ export default function CampaignPage() {
       if (!supabase) return;
       const { data, error } = await supabase
         .from("dante_timeline_events")
-        .select("*")
+        .select("*, media:dante_timeline_media(*)")
         .eq("is_published", true)
         .order("sort_order", { ascending: true })
         .order("event_date", { ascending: true });
@@ -135,6 +146,7 @@ export default function CampaignPage() {
           id: row.slug || row.id,
           date: row.display_date,
           time: row.display_time,
+          location: row.location || undefined,
           title: row.title,
           summary: row.summary,
           description: row.description,
@@ -143,6 +155,14 @@ export default function CampaignPage() {
           statusLabel: row.status_label || undefined,
         }));
         setTimelineList(mapped);
+
+        // Buscar mídia do evento atual
+        const currentRow = data.find((r) => r.is_current_status);
+        if (currentRow?.media && Array.isArray(currentRow.media)) {
+          setMediaForCurrentEvent(
+            currentRow.media.sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
+          );
+        }
       }
     }
 
@@ -490,7 +510,7 @@ export default function CampaignPage() {
       {activeStatusEvent && (
         <div className="container" style={{ marginTop: "-0.5rem", marginBottom: "2rem" }}>
           <a
-            href="#atualizacao-recente"
+            href="#atualizacoes"
             className="group block p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-slate-900/90 to-emerald-950/80 border border-emerald-500/40 hover:border-emerald-400/80 shadow-lg shadow-emerald-950/40 transition-all"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -499,13 +519,18 @@ export default function CampaignPage() {
                   🐾
                 </span>
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                      {activeStatusEvent.statusLabel ?? "Nova Atualização"}
+                      NOVA ATUALIZAÇÃO
                     </span>
                     <span className="text-xs text-slate-400">
                       {activeStatusEvent.date.replace(/\/\d{4}$/, "")}
                     </span>
+                    {activeStatusEvent.statusLabel && (
+                      <span className="text-[10px] font-semibold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                        {activeStatusEvent.statusLabel}
+                      </span>
+                    )}
                   </div>
                   <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-300 transition-colors mt-0.5">
                     {activeStatusEvent.title}
@@ -568,48 +593,8 @@ export default function CampaignPage() {
         </div>
       </section>
 
-      {/* ATUALIZAÇÕES / ESTADO ATUAL */}
-      <section id="atualizacoes" className="section container">
-        <div className="section-heading">
-          <p className="section-kicker">Estado atual</p>
-          <h2>Como ele está agora?</h2>
-          <p className="section-intro">
-            Acompanhe a atualização clínica mais recente confirmada pela equipe
-            veterinária.
-          </p>
-        </div>
-        <div className="status-grid">
-          <div className="status-photo">
-            <Image
-              src="/images/Usar/Fotos/02.jpeg"
-              alt="Dante durante visita de atualização após a cirurgia"
-              fill
-              sizes="(max-width: 900px) 100vw, 35vw"
-            />
-          </div>
-          <div className="status-card">
-            <div className="status-card-header">
-              <h3>Animal House</h3>
-              {activeStatusEvent.statusLabel && (
-                <span className="status-tag status-tag-positive">
-                  ● {activeStatusEvent.statusLabel}
-                </span>
-              )}
-            </div>
-            <p className="status-date">
-              {activeStatusEvent.date.replace(/\/\d{4}$/, "")} ·{" "}
-              {activeStatusEvent.time}
-            </p>
-            <h4>{activeStatusEvent.title}</h4>
-            <p className="status-description">
-              {activeStatusEvent.description}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* SEÇÃO DA VISITA DE HOJE COM GALERIA DE FOTOS E VÍDEO */}
-      <VisitUpdateSection currentEvent={activeStatusEvent} />
+      {/* SEÇÃO DA ATUALIZAÇÃO ATUAL — card branco dinâmico, sem duplicação */}
+      <VisitUpdateSection currentEvent={activeStatusEvent} media={mediaForCurrentEvent} />
 
       {/* LINHA DO TEMPO */}
       <section className="section container">
@@ -660,6 +645,9 @@ export default function CampaignPage() {
                     <div className="timeline-meta">
                       <span className="timeline-date">{event.date}</span>
                       <span className="timeline-time">{event.time}</span>
+                      {event.location && (
+                        <span className="timeline-time">· {event.location}</span>
+                      )}
                     </div>
                     <h3>{event.title}</h3>
                     <p className={event.isCurrentStatus ? "timeline-current-summary" : undefined}>

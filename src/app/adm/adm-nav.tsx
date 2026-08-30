@@ -31,9 +31,16 @@ const navItems: NavItem[] = [
     icon: "🎟️",
   },
   {
-    label: "Timeline e Transparência",
-    href: "/adm/timeline-transparencia",
+    label: "Atualizações do Dante",
+    href: "/adm/atualizacoes",
     icon: "📝",
+  },
+  {
+    label: "Transparência",
+    href: "/adm/transparencia",
+    icon: "📂",
+    badge: "Em breve",
+    disabled: true,
   },
 ];
 
@@ -131,7 +138,9 @@ export default function AdmNav({ userEmail }: { userEmail: string }) {
             Módulos do Sistema
           </div>
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive =
+              pathname === item.href ||
+              (item.href === "/adm/atualizacoes" && pathname === "/adm/timeline-transparencia");
             if (item.disabled) {
               return (
                 <div

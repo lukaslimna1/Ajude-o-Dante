@@ -1,10 +1,5 @@
-import { getAdminTimelineEvents } from "./actions";
-import TimelineManager from "./timeline-manager";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default async function AdminTimelinePage() {
-  const { events } = await getAdminTimelineEvents();
-
-  return <TimelineManager initialEvents={events} />;
+export default function TimelineTransparenciaPage() {
+  redirect("/adm/atualizacoes");
 }

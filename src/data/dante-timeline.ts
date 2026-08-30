@@ -2,6 +2,7 @@ export type TimelineEvent = {
   id: string;
   date: string;
   time: string;
+  location?: string;
   title: string;
   summary: string;
   description: string;

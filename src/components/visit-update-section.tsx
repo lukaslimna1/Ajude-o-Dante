@@ -7,16 +7,54 @@ import { motion, AnimatePresence } from "framer-motion";
 import { danteLatestVisit } from "@/data/campaign-content";
 import type { TimelineEvent } from "@/data/dante-timeline";
 
+export interface TimelineMediaItem {
+  id: string;
+  media_type: "image" | "video";
+  url: string;
+  alt_text: string;
+  caption: string | null;
+  poster_url: string | null;
+  is_primary: boolean;
+  sort_order: number;
+}
+
 interface VisitUpdateSectionProps {
   /** Evento com is_current_status=true vindo do Supabase (opcional). Se fornecido, substitui o texto hardcoded. */
   currentEvent?: TimelineEvent | null;
+  /** Mídias associadas ao evento atual vindas do Supabase (opcional). Se fornecido, substitui as mídias hardcoded. */
+  media?: TimelineMediaItem[] | null;
 }
 
-export default function VisitUpdateSection({ currentEvent }: VisitUpdateSectionProps = {}) {
+export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateSectionProps = {}) {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null);
 
-  const currentPhoto = danteLatestVisit.photos[activePhotoIndex];
+  // Mídias dinâmicas ou fallback para danteLatestVisit
+  const dynamicPhotos = (media || [])
+    .filter((m) => m.media_type === "image")
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((m, idx) => ({
+      id: m.id,
+      src: m.url,
+      alt: m.alt_text || "Dante durante atualização",
+      label: m.caption || `Foto ${idx + 1}`,
+    }));
+
+  const dynamicVideoItem = (media || []).find((m) => m.media_type === "video");
+  const dynamicVideo = dynamicVideoItem
+    ? {
+        src: dynamicVideoItem.url,
+        poster: dynamicVideoItem.poster_url || "/images/Usar/Fotos/02.jpeg",
+        description:
+          dynamicVideoItem.caption ||
+          dynamicVideoItem.alt_text ||
+          "Registro real do Dante recebendo cuidados e carinho na clínica.",
+      }
+    : danteLatestVisit.video;
+
+  const photos = dynamicPhotos.length > 0 ? dynamicPhotos : danteLatestVisit.photos;
+  const currentPhoto = photos[Math.min(activePhotoIndex, photos.length - 1)] || photos[0];
+  const video = dynamicVideo;
 
   // Texto dinâmico: usa o evento do Supabase quando disponível, senão usa dados hardcoded
   const displayTitle = currentEvent?.title ?? danteLatestVisit.title;
@@ -28,9 +66,11 @@ export default function VisitUpdateSection({ currentEvent }: VisitUpdateSectionP
   const displayDate = currentEvent?.date
     ? currentEvent.date.replace(/\/\d{4}$/, "")
     : "29 de Agosto";
+  const displayLocation = currentEvent?.location || "Clínica Animal House";
 
   return (
-    <section id="atualizacao-recente" className="section container">
+    <section id="atualizacoes" className="section container">
+      <div id="atualizacao-recente" />
       {/* UPDATE CONTAINER CARD */}
       <div className="soft-panel relative overflow-hidden border border-emerald-500/30 bg-gradient-to-b from-slate-900/90 to-slate-950/95 shadow-2xl rounded-3xl p-5 sm:p-8 md:p-10">
         {/* Subtle Ambient Glow */}
@@ -45,7 +85,7 @@ export default function VisitUpdateSection({ currentEvent }: VisitUpdateSectionP
             </span>
           </div>
           <span className="text-xs text-slate-400 font-medium">
-            {displayDate} · Clínica Animal House
+            {displayDate} · {displayLocation}
           </span>
         </div>
 
@@ -64,52 +104,56 @@ export default function VisitUpdateSection({ currentEvent }: VisitUpdateSectionP
           {/* LEFT: INTERACTIVE PHOTO GALLERY (7 cols) */}
           <div className="lg:col-span-7 flex flex-col gap-3">
             {/* Main Active Photo Frame */}
-            <div
-              onClick={() => setLightboxImage(currentPhoto)}
-              className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-black/80 border border-white/15 cursor-pointer group shadow-xl"
-            >
-              <Image
-                src={currentPhoto.src}
-                alt={currentPhoto.alt}
-                fill
-                sizes="(max-width: 1024px) 100vw, 55vw"
-                className="object-contain sm:object-cover group-hover:scale-105 transition-transform duration-500"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                <span className="text-xs font-semibold text-white flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-lg backdrop-blur-md">
-                  🔍 Clique para ampliar foto
-                </span>
+            {currentPhoto && (
+              <div
+                onClick={() => setLightboxImage(currentPhoto)}
+                className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-black/80 border border-white/15 cursor-pointer group shadow-xl"
+              >
+                <Image
+                  src={currentPhoto.src}
+                  alt={currentPhoto.alt}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 55vw"
+                  className="object-contain sm:object-cover group-hover:scale-105 transition-transform duration-500"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <span className="text-xs font-semibold text-white flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-lg backdrop-blur-md">
+                    🔍 Clique para ampliar foto
+                  </span>
+                </div>
+                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[11px] font-medium text-slate-200">
+                  {currentPhoto.label} ({activePhotoIndex + 1}/{photos.length})
+                </div>
               </div>
-              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[11px] font-medium text-slate-200">
-                {currentPhoto.label} ({activePhotoIndex + 1}/{danteLatestVisit.photos.length})
-              </div>
-            </div>
+            )}
 
             {/* Thumbnails Row */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin">
-              {danteLatestVisit.photos.map((photo, idx) => (
-                <button
-                  key={photo.id}
-                  type="button"
-                  onClick={() => setActivePhotoIndex(idx)}
-                  className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
-                    activePhotoIndex === idx
-                      ? "border-emerald-400 shadow-lg shadow-emerald-500/20 scale-105"
-                      : "border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
-                  }`}
-                  aria-label={`Ver foto ${photo.label}`}
-                >
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {photos.length > 1 && (
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 scrollbar-thin">
+                {photos.map((photo, idx) => (
+                  <button
+                    key={photo.id || idx}
+                    type="button"
+                    onClick={() => setActivePhotoIndex(idx)}
+                    className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                      activePhotoIndex === idx
+                        ? "border-emerald-400 shadow-lg shadow-emerald-500/20 scale-105"
+                        : "border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
+                    }`}
+                    aria-label={`Ver foto ${photo.label}`}
+                  >
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* RIGHT: HTML5 VIDEO PLAYER (5 cols) */}
@@ -128,17 +172,19 @@ export default function VisitUpdateSection({ currentEvent }: VisitUpdateSectionP
                   controls
                   playsInline
                   preload="metadata"
-                  poster={danteLatestVisit.video.poster}
+                  poster={video.poster}
                   className="w-full h-full object-contain"
                 >
-                  <source src={danteLatestVisit.video.src} type="video/mp4" />
+                  <source src={video.src} type="video/mp4" />
                   Seu navegador não suporta reprodução de vídeo HTML5.
                 </video>
               </div>
             </div>
-            <p className="text-xs text-slate-400 leading-relaxed px-1">
-              {danteLatestVisit.video.description}
-            </p>
+            {video.description && (
+              <p className="text-xs text-slate-400 leading-relaxed px-1">
+                {video.description}
+              </p>
+            )}
           </div>
         </div>
 
