@@ -56,12 +56,19 @@ export default function RaffleSection() {
 
       <div className="raffle-actions">
         <a
+          href="/acao-entre-amigos"
+          className="button button-primary raffle-btn"
+          style={{ gridColumn: "1 / -1", textAlign: "center", justifyContent: "center" }}
+        >
+          <span aria-hidden="true">🎟️</span> Escolher meus números na Rifa (R$ 15,00)
+        </a>
+        <a
           href={contacts.lucas.getRaffleUrl()}
           target="_blank"
           rel="noopener noreferrer"
-          className="button button-primary raffle-btn"
+          className="button button-secondary raffle-btn"
         >
-          <span aria-hidden="true">💬</span> Comprar número com Lucas
+          <span aria-hidden="true">💬</span> Falar com Lucas
         </a>
         <a
           href={contacts.evandro.getRaffleUrl()}
@@ -69,7 +76,7 @@ export default function RaffleSection() {
           rel="noopener noreferrer"
           className="button button-secondary raffle-btn"
         >
-          <span aria-hidden="true">💬</span> Comprar número com Evandro
+          <span aria-hidden="true">💬</span> Falar com Evandro
         </a>
       </div>
     </div>
