@@ -257,9 +257,21 @@ async function runRealPostgresTests() {
   console.log("Payload Pix Copia e Cola gerado:");
   console.log(" ", pixPayload);
   console.log("QR Code salvo em:", qrFilePath);
-  console.log("[ASSERT PASS] QR Code Pix de R$ 15,00 pronto para conferência.");
+  // 7. INVARIANTE: TODA RESERVA ATIVA DEVE TER NÚMEROS VINCULADOS === QUANTITY
+  const orphanCheck = await pool.query(`
+    select r.id, r.order_code, r.quantity, count(n.id) as linked_count
+    from public.dante_raffle_reservations r
+    left join public.dante_raffle_numbers n on n.reservation_id = r.id
+    where r.status in ('reserved', 'awaiting_confirmation')
+    group by r.id, r.order_code, r.quantity
+    having count(n.id) <> r.quantity or count(n.id) = 0
+  `);
+  if (orphanCheck.rows.length > 0) {
+    throw new Error(`Invariante violado no PostgreSQL: ${orphanCheck.rows.length} reservas ativas órfãs!`);
+  }
+  console.log("[ASSERT PASS] Invariante estrito verificado no PostgreSQL: Nenhuma reserva ativa órfã.");
 
-  // 7. RESTAURA STATUS DA RIFA COMO 'DRAFT' (CONFORME REQUISITO 5)
+  // 8. RESTAURA STATUS DA RIFA COMO 'DRAFT' (CONFORME REQUISITO 5)
   await pool.query("update public.dante_raffle set status = 'draft' where id = 'main'");
   const finalRaffle = (await pool.query("select status from public.dante_raffle where id = 'main'")).rows[0];
   if (finalRaffle.status !== "draft") {

@@ -313,8 +313,20 @@ const cleaned = db.cleanupExpired();
 if (cleaned === 0 || db.numbers.get(12).status !== "available") {
   throw new Error("Limpeza de expirados falhou para o número 12.");
 }
-console.log(`[PASS] Limpeza global de expirados liberou ${cleaned} reserva e restaurou número 012 para AVAILABLE.`);
+// Teste 3.10: Invariante Estrito — Toda reserva ativa DEVE ter contagem de números vinculados === quantity
+for (const [resId, res] of db.reservations.entries()) {
+  if (res.status === "reserved" || res.status === "awaiting_confirmation") {
+    let linked = 0;
+    for (const num of db.numbers.values()) {
+      if (num.reservation_id === resId) linked++;
+    }
+    if (linked !== res.quantity || linked === 0) {
+      throw new Error(`Invariante violado: Reserva ativa órfã detectada! ID ${resId}`);
+    }
+  }
+}
+console.log("[PASS] Invariante estrito: Nenhuma reserva ativa órfã permitida.");
 
 console.log("\n==================================================");
-console.log("TODOS OS 14 CENÁRIOS DE TESTE PASSARAM COM SUCESSO!");
+console.log("TODOS OS 15 CENÁRIOS DE TESTE PASSARAM COM SUCESSO!");
 console.log("==================================================");
