@@ -4,7 +4,7 @@ import RaffleManager from "./raffle-manager";
 export const dynamic = "force-dynamic";
 
 export default async function AcaoEntreAmigosPage() {
-  const { metrics, reservations, error } = await fetchRaffleAdminData();
+  const { metrics, reservations, numbers, error } = await fetchRaffleAdminData();
 
   return (
     <div className="space-y-6">
@@ -30,7 +30,11 @@ export default async function AcaoEntreAmigosPage() {
         </div>
       )}
 
-      <RaffleManager initialMetrics={metrics} initialReservations={reservations} />
+      <RaffleManager
+        initialMetrics={metrics}
+        initialReservations={reservations}
+        initialNumbers={numbers}
+      />
     </div>
   );
 }

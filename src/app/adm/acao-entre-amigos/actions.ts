@@ -24,16 +24,26 @@ export interface AdminReservationItem {
   quantity: number;
   numbers: number[];
   created_at: string;
-  expires_at: string;
+  expires_at: string | null;
   proof_sent_at: string | null;
   confirmed_at: string | null;
   admin_notes: string | null;
+  entry_source: "site" | "admin_manual";
+  payment_method?: "pix" | "cash" | "transfer" | "other" | null;
+}
+
+export interface AdminNumberGridItem {
+  number: number;
+  status: "available" | "reserved" | "awaiting_confirmation" | "paid";
+  customer_name?: string | null;
+  order_code?: string | null;
 }
 
 export async function fetchRaffleAdminData(): Promise<{
   success: boolean;
   metrics: RaffleAdminMetrics;
   reservations: AdminReservationItem[];
+  numbers: AdminNumberGridItem[];
   error?: string;
 }> {
   try {
@@ -55,6 +65,7 @@ export async function fetchRaffleAdminData(): Promise<{
           maxRevenueCents: 150000,
         },
         reservations: [],
+        numbers: [],
         error: "Acesso não autorizado.",
       };
     }
@@ -69,7 +80,8 @@ export async function fetchRaffleAdminData(): Promise<{
     // 1. Fetch numbers to calculate visual counts accurately
     const { data: numbersData, error: numbersError } = await supabase
       .from("dante_raffle_numbers")
-      .select("number, status, reserved_until, reservation_id");
+      .select("number, status, reserved_until, reservation_id, confirmed_at")
+      .order("number", { ascending: true });
 
     if (numbersError) {
       throw new Error(numbersError.message);
@@ -82,6 +94,7 @@ export async function fetchRaffleAdminData(): Promise<{
     let availableCount = 0;
 
     const reservationNumbersMap = new Map<string, number[]>();
+    const gridNumbers: AdminNumberGridItem[] = [];
 
     for (const num of numbersData || []) {
       if (num.reservation_id) {
@@ -90,15 +103,26 @@ export async function fetchRaffleAdminData(): Promise<{
         reservationNumbersMap.set(num.reservation_id, list);
       }
 
+      let visualStatus: "available" | "reserved" | "awaiting_confirmation" | "paid" = "available";
+
       if (num.status === "paid") {
         paidCount++;
+        visualStatus = "paid";
       } else if (num.status === "awaiting_confirmation") {
         awaitingCount++;
-      } else if (num.status === "reserved" && num.reserved_until && num.reserved_until > now) {
+        visualStatus = "awaiting_confirmation";
+      } else if (num.status === "reserved" && (!num.reserved_until || num.reserved_until > now)) {
         reservedCount++;
+        visualStatus = "reserved";
       } else {
         availableCount++;
+        visualStatus = "available";
       }
+
+      gridNumbers.push({
+        number: num.number,
+        status: visualStatus,
+      });
     }
 
     // 2. Fetch reservations
@@ -130,6 +154,8 @@ export async function fetchRaffleAdminData(): Promise<{
         proof_sent_at: r.proof_sent_at,
         confirmed_at: r.confirmed_at,
         admin_notes: r.admin_notes,
+        entry_source: (r.entry_source as "site" | "admin_manual") || "site",
+        payment_method: r.payment_method || null,
       };
     });
 
@@ -148,6 +174,7 @@ export async function fetchRaffleAdminData(): Promise<{
         maxRevenueCents: 150000,
       },
       reservations,
+      numbers: gridNumbers,
     };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Erro ao carregar dados da Rifa.";
@@ -164,6 +191,7 @@ export async function fetchRaffleAdminData(): Promise<{
         maxRevenueCents: 150000,
       },
       reservations: [],
+      numbers: [],
       error: errorMsg,
     };
   }
@@ -236,6 +264,41 @@ export async function releaseRaffleReservation(
     return { success: Boolean(data?.success), error: data?.error };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : "Erro ao liberar números da reserva.";
+    return { success: false, error: errorMsg };
+  }
+}
+
+export async function adminCreateManualRaffleEntry(params: {
+  numbers: number[];
+  customerName: string;
+  customerWhatsapp?: string;
+  paymentStatus: "paid" | "reserved";
+  paymentMethod?: "pix" | "cash" | "transfer" | "other";
+  reservationMode?: "30_minutes" | "without_expiration";
+  notes?: string;
+}): Promise<{ success: boolean; order_code?: string; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("admin_create_dante_raffle_entry", {
+      p_raffle_id: "main",
+      p_numbers: params.numbers,
+      p_customer_name: params.customerName,
+      p_customer_whatsapp: params.customerWhatsapp || "",
+      p_payment_status: params.paymentStatus,
+      p_payment_method: params.paymentMethod || null,
+      p_reservation_mode: params.reservationMode || "without_expiration",
+      p_notes: params.notes || null,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/adm/acao-entre-amigos");
+    revalidatePath("/acao-entre-amigos");
+    return { success: Boolean(data?.success), order_code: data?.order_code, error: data?.error };
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Erro ao cadastrar lançamento manual.";
     return { success: false, error: errorMsg };
   }
 }
