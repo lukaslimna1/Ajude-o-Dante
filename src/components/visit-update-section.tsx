@@ -5,12 +5,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { danteLatestVisit } from "@/data/campaign-content";
+import type { TimelineEvent } from "@/data/dante-timeline";
 
-export default function VisitUpdateSection() {
+interface VisitUpdateSectionProps {
+  /** Evento com is_current_status=true vindo do Supabase (opcional). Se fornecido, substitui o texto hardcoded. */
+  currentEvent?: TimelineEvent | null;
+}
+
+export default function VisitUpdateSection({ currentEvent }: VisitUpdateSectionProps = {}) {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [lightboxImage, setLightboxImage] = useState<{ src: string; alt: string } | null>(null);
 
   const currentPhoto = danteLatestVisit.photos[activePhotoIndex];
+
+  // Texto dinâmico: usa o evento do Supabase quando disponível, senão usa dados hardcoded
+  const displayTitle = currentEvent?.title ?? danteLatestVisit.title;
+  const displaySubheading = currentEvent?.summary ?? danteLatestVisit.subheading;
+  const displayParagraphs: string[] = currentEvent?.description
+    ? currentEvent.description.split("\n\n").map((p) => p.trim()).filter(Boolean)
+    : danteLatestVisit.paragraphs;
+  const displayBadge = currentEvent?.statusLabel ?? danteLatestVisit.badge;
+  const displayDate = currentEvent?.date
+    ? currentEvent.date.replace(/\/\d{4}$/, "")
+    : "29 de Agosto";
 
   return (
     <section id="atualizacao-recente" className="section container">
@@ -24,21 +41,21 @@ export default function VisitUpdateSection() {
           <div className="flex items-center gap-2">
             <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold text-xs tracking-wider uppercase flex items-center gap-1.5 shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              {danteLatestVisit.badge}
+              {displayBadge}
             </span>
           </div>
           <span className="text-xs text-slate-400 font-medium">
-            29 de Agosto · Clínica Animal House
+            {displayDate} · Clínica Animal House
           </span>
         </div>
 
         {/* Title & Introduction */}
         <div className="max-w-3xl mb-8">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-            {danteLatestVisit.title}
+            {displayTitle}
           </h2>
           <p className="text-sm sm:text-base text-emerald-300/90 font-medium mt-2">
-            {danteLatestVisit.subheading}
+            {displaySubheading}
           </p>
         </div>
 
@@ -127,7 +144,7 @@ export default function VisitUpdateSection() {
 
         {/* TEXT CONTENT / REPORT */}
         <div className="space-y-4 max-w-4xl text-slate-300 text-sm sm:text-base leading-relaxed mb-8 pt-4 border-t border-white/10">
-          {danteLatestVisit.paragraphs.map((par, i) => (
+          {displayParagraphs.map((par, i) => (
             <p key={i}>{par}</p>
           ))}
         </div>
