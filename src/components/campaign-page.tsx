@@ -12,7 +12,7 @@ import {
   faqItems,
   initialSupporters,
 } from "@/data/campaign-content";
-import { currentStatusEvent, timelineEvents } from "@/data/dante-timeline";
+import { currentStatusEvent, timelineEvents, type TimelineEvent } from "@/data/dante-timeline";
 import FloatingWhatsApp from "@/components/floating-whatsapp";
 import RaffleSection from "@/components/raffle-section";
 import VisitUpdateSection from "@/components/visit-update-section";
@@ -64,11 +64,20 @@ export default function CampaignPage() {
   >(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [timelineProgress, setTimelineProgress] = useState(0);
+  const [timelineList, setTimelineList] = useState<TimelineEvent[]>(timelineEvents);
   const [activeTimelineId, setActiveTimelineId] = useState(
     timelineEvents[0].id
   );
   const [visitedTimelineIds, setVisitedTimelineIds] = useState<string[]>([]);
   const [expandedTimelineIds, setExpandedTimelineIds] = useState<string[]>([]);
+
+  const activeStatusEvent = useMemo(() => {
+    return (
+      timelineList.find((event) => event.isCurrentStatus) ??
+      timelineList[timelineList.length - 1] ??
+      currentStatusEvent
+    );
+  }, [timelineList]);
 
   useEffect(() => {
     let active = true;
@@ -112,8 +121,34 @@ export default function CampaignPage() {
       }
     }
 
+    async function fetchTimeline() {
+      if (!supabase) return;
+      const { data, error } = await supabase
+        .from("dante_timeline_events")
+        .select("*")
+        .eq("is_published", true)
+        .order("sort_order", { ascending: true })
+        .order("event_date", { ascending: true });
+
+      if (active && !error && data && data.length > 0) {
+        const mapped: TimelineEvent[] = data.map((row) => ({
+          id: row.slug || row.id,
+          date: row.display_date,
+          time: row.display_time,
+          title: row.title,
+          summary: row.summary,
+          description: row.description,
+          type: row.event_type === "status" ? "status" : undefined,
+          isCurrentStatus: row.is_current_status,
+          statusLabel: row.status_label || undefined,
+        }));
+        setTimelineList(mapped);
+      }
+    }
+
     void fetchCampaign();
     void fetchSupporters();
+    void fetchTimeline();
 
     // Supabase Realtime Subscription
     const channel = supabase
@@ -142,6 +177,7 @@ export default function CampaignPage() {
     const pollingInterval = window.setInterval(() => {
       void fetchCampaign();
       void fetchSupporters();
+      void fetchTimeline();
     }, 30000);
 
     return () => {
@@ -550,19 +586,19 @@ export default function CampaignPage() {
           <div className="status-card">
             <div className="status-card-header">
               <h3>Animal House</h3>
-              {currentStatusEvent.statusLabel && (
+              {activeStatusEvent.statusLabel && (
                 <span className="status-tag status-tag-positive">
-                  ● {currentStatusEvent.statusLabel}
+                  ● {activeStatusEvent.statusLabel}
                 </span>
               )}
             </div>
             <p className="status-date">
-              {currentStatusEvent.date.replace(/\/\d{4}$/, "")} ·{" "}
-              {currentStatusEvent.time}
+              {activeStatusEvent.date.replace(/\/\d{4}$/, "")} ·{" "}
+              {activeStatusEvent.time}
             </p>
-            <h4>{currentStatusEvent.title}</h4>
+            <h4>{activeStatusEvent.title}</h4>
             <p className="status-description">
-              {currentStatusEvent.description}
+              {activeStatusEvent.description}
             </p>
           </div>
         </div>
@@ -592,7 +628,7 @@ export default function CampaignPage() {
             role="list"
             aria-label="Cronologia da história do Dante"
           >
-            {timelineEvents.map((event, index) => {
+            {timelineList.map((event, index) => {
               const isActive = activeTimelineId === event.id;
               const isVisited = visitedTimelineIds.includes(event.id);
               const isExpanded = expandedTimelineIds.includes(event.id);

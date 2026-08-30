@@ -34,8 +34,6 @@ const navItems: NavItem[] = [
     label: "Timeline e Transparência",
     href: "/adm/timeline-transparencia",
     icon: "📝",
-    badge: "Em breve",
-    disabled: true,
   },
 ];
 
