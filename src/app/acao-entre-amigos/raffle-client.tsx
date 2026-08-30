@@ -283,16 +283,13 @@ export default function RaffleClient({
                 <div className="w-full max-w-[320px] rounded-2xl bg-black/60 border border-white/15 p-3 shadow-2xl relative group">
                   <div className="aspect-video rounded-xl bg-slate-900 overflow-hidden relative border border-white/10 flex items-center justify-center">
                     <Image
-                      src="/Rifa/TV Frente.jpg"
+                      src="/Rifa/TV Frente.png"
                       alt="Smart TV SEMP TCL 43 polegadas Modelo 43S5300"
                       fill
                       sizes="(max-width: 768px) 100vw, 320px"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                       priority
                     />
-                    <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-emerald-500/90 text-slate-950 font-extrabold text-[10px] shadow-md">
-                      NOVA NA CAIXA
-                    </div>
                   </div>
                   <div className="mt-3 flex items-center justify-between px-1">
                     <div>
