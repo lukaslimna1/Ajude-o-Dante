@@ -91,7 +91,10 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
 
         {/* Title & Introduction */}
         <div className="max-w-3xl mb-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
+          <h2
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight"
+            style={{ color: "#111827" }}
+          >
             {displayTitle}
           </h2>
           <p className="text-sm sm:text-base text-emerald-300/90 font-medium mt-2">
@@ -116,6 +119,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                   sizes="(max-width: 1024px) 100vw, 55vw"
                   className="object-contain sm:object-cover group-hover:scale-105 transition-transform duration-500"
                   priority
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                   <span className="text-xs font-semibold text-white flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-lg backdrop-blur-md">
@@ -149,6 +153,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                       fill
                       sizes="80px"
                       className="object-cover"
+                      unoptimized
                     />
                   </button>
                 ))}
@@ -241,6 +246,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                   fill
                   sizes="100vw"
                   className="object-contain"
+                  unoptimized
                 />
               </div>
               <p className="text-white text-xs sm:text-sm mt-3 text-center bg-black/60 px-4 py-2 rounded-xl backdrop-blur-md">
