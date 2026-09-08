@@ -128,7 +128,6 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                   unoptimized
                   className="object-contain sm:object-cover group-hover:scale-105 transition-transform duration-500"
                   priority
-                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                   <span className="text-xs font-semibold text-white flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-lg backdrop-blur-md">
@@ -167,7 +166,6 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                       sizes="80px"
                       unoptimized
                       className="object-cover"
-                      unoptimized
                     />
                   </button>
                 ))}
@@ -267,7 +265,6 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                   sizes="100vw"
                   unoptimized
                   className="object-contain"
-                  unoptimized
                 />
               </div>
               <p className="text-white text-xs sm:text-sm mt-3 text-center bg-black/60 px-4 py-2 rounded-xl backdrop-blur-md">
