@@ -1,0 +1,38 @@
+name: Rebuild September 3 original media
+
+on:
+  push:
+    branches:
+      - fix/sept3-original-media
+    paths:
+      - '.media-staging/READY'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct original JPEG
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/images/Usar/Fotos
+          cat .media-staging/primary.part* | base64 --decode > public/images/Usar/Fotos/2026-09-03-dante-recuperacao-roupa.jpeg
+          echo "e8396d6dd3626583aba801c6b9318e769c5a7bf06cde45f642a1950828cbf966  public/images/Usar/Fotos/2026-09-03-dante-recuperacao-roupa.jpeg" | sha256sum -c -
+          test "$(stat -c%s public/images/Usar/Fotos/2026-09-03-dante-recuperacao-roupa.jpeg)" = "674857"
+      - name: Commit exact original and clean staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .media-staging
+          rm -f .github/workflows/rebuild-sept3-media.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "fix(media): restore original Dante September 3 photo"
+          git push origin HEAD:fix/sept3-original-media
