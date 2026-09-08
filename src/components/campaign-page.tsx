@@ -25,6 +25,18 @@ const formatCents = (value: number) => money.format(value / 100);
 
 const donationPresets = ["10", "20", "50", "100"];
 
+interface PublicTransparencyExpense {
+  id: string;
+  expense_date: string;
+  title: string;
+  description: string | null;
+  category: string;
+  amount_cents: number;
+  payment_status: "paid" | "pending";
+  document_url: string | null;
+  sort_order: number;
+}
+
 function createSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
@@ -70,6 +82,9 @@ export default function CampaignPage() {
   );
   const [visitedTimelineIds, setVisitedTimelineIds] = useState<string[]>([]);
   const [expandedTimelineIds, setExpandedTimelineIds] = useState<string[]>([]);
+  const [publicTransparencyExpenses, setPublicTransparencyExpenses] = useState<
+    PublicTransparencyExpense[]
+  >([]);
   // Mídia do evento atual (fotos + vídeo do banco)
   const [mediaForCurrentEvent, setMediaForCurrentEvent] = useState<{
     id: string;
@@ -132,6 +147,22 @@ export default function CampaignPage() {
       }
     }
 
+    async function fetchTransparencyExpenses() {
+      if (!supabase) return;
+      const { data, error } = await supabase
+        .from("dante_expenses")
+        .select(
+          "id, expense_date, title, description, category, amount_cents, payment_status, document_url, sort_order"
+        )
+        .eq("is_public", true)
+        .order("expense_date", { ascending: false })
+        .order("sort_order", { ascending: true });
+
+      if (active && !error && data) {
+        setPublicTransparencyExpenses(data as PublicTransparencyExpense[]);
+      }
+    }
+
     async function fetchTimeline() {
       if (!supabase) return;
       const { data, error } = await supabase
@@ -168,6 +199,7 @@ export default function CampaignPage() {
 
     void fetchCampaign();
     void fetchSupporters();
+    void fetchTransparencyExpenses();
     void fetchTimeline();
 
     // Supabase Realtime Subscription
@@ -947,7 +979,11 @@ export default function CampaignPage() {
                     </span>
                     <div className="transparency-trigger-text">
                       <strong>Comprovantes e prestação de contas</strong>
-                      <span className="transparency-trigger-badge">Em organização</span>
+                      <span className="transparency-trigger-badge">
+                        {publicTransparencyExpenses.length > 0
+                          ? `${publicTransparencyExpenses.length} comprovantes publicados`
+                          : "Em organização"}
+                      </span>
                     </div>
                   </div>
                   <span
@@ -986,23 +1022,94 @@ export default function CampaignPage() {
                       transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <div className="transparency-accordion-content">
-                        <span
-                          className="status-tag"
-                          style={{
-                            background: "var(--soft)",
-                            color: "var(--orange-dark)",
-                            marginBottom: 12,
-                            display: "inline-block",
-                          }}
-                        >
-                          Documentos sendo organizados
-                        </span>
-                        <p>
-                          Estamos organizando os comprovantes, despesas e atualizações
-                          financeiras do tratamento do Dante. À medida que forem
-                          disponibilizados, eles serão publicados aqui para consulta.
-                        </p>
-                        <div className="transparency-documents-list" aria-hidden="true" />
+                        {publicTransparencyExpenses.length === 0 ? (
+                          <>
+                            <span
+                              className="status-tag"
+                              style={{
+                                background: "var(--soft)",
+                                color: "var(--orange-dark)",
+                                marginBottom: 12,
+                                display: "inline-block",
+                              }}
+                            >
+                              Documentos sendo organizados
+                            </span>
+                            <p>
+                              Estamos organizando os comprovantes, despesas e atualizações
+                              financeiras do tratamento do Dante. À medida que forem
+                              disponibilizados, eles serão publicados aqui para consulta.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <span
+                              className="status-tag"
+                              style={{
+                                background: "#e7f7ed",
+                                color: "#1f7a46",
+                                marginBottom: 12,
+                                display: "inline-block",
+                              }}
+                            >
+                              Comprovantes publicados
+                            </span>
+                            <p>
+                              Pagamentos confirmados do tratamento do Dante, com seus
+                              respectivos comprovantes. Total publicado: {formatCents(
+                                publicTransparencyExpenses.reduce(
+                                  (total, expense) => total + Number(expense.amount_cents || 0),
+                                  0
+                                )
+                              )}.
+                            </p>
+                            <div className="transparency-documents-list">
+                              {publicTransparencyExpenses.map((expense) => (
+                                <article className="transparency-expense" key={expense.id}>
+                                  <div className="transparency-expense-head">
+                                    <div>
+                                      <h3 className="transparency-expense-title">
+                                        {expense.title}
+                                      </h3>
+                                      <p className="transparency-expense-meta">
+                                        {new Date(`${expense.expense_date}T12:00:00`).toLocaleDateString(
+                                          "pt-BR"
+                                        )} · {expense.category}
+                                      </p>
+                                    </div>
+                                    <strong className="transparency-expense-amount">
+                                      {formatCents(Number(expense.amount_cents || 0))}
+                                    </strong>
+                                  </div>
+                                  {expense.description && (
+                                    <p className="transparency-expense-description">
+                                      {expense.description}
+                                    </p>
+                                  )}
+                                  {expense.document_url && (
+                                    <a
+                                      className="transparency-expense-proof"
+                                      href={expense.document_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <Image
+                                        src={expense.document_url}
+                                        alt={`Comprovante: ${expense.title}`}
+                                        width={72}
+                                        height={104}
+                                        unoptimized
+                                      />
+                                      <span>
+                                        Ver comprovante completo <span aria-hidden="true">↗</span>
+                                      </span>
+                                    </a>
+                                  )}
+                                </article>
+                              ))}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </motion.div>
                   )}
