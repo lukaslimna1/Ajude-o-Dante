@@ -50,9 +50,17 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
           dynamicVideoItem.alt_text ||
           "Registro real do Dante recebendo cuidados e carinho na clínica.",
       }
-    : danteLatestVisit.video;
+    : currentEvent
+      ? null
+      : danteLatestVisit.video;
 
-  const photos = dynamicPhotos.length > 0 ? dynamicPhotos : danteLatestVisit.photos;
+  // Não misture mídia legada com o texto de um evento dinâmico sem mídia.
+  // O fallback antigo só vale enquanto não existe evento do Supabase.
+  const photos = dynamicPhotos.length > 0
+    ? dynamicPhotos
+    : currentEvent
+      ? []
+      : danteLatestVisit.photos;
   const currentPhoto = photos[Math.min(activePhotoIndex, photos.length - 1)] || photos[0];
   const video = dynamicVideo;
 
@@ -107,7 +115,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
           {/* LEFT: INTERACTIVE PHOTO GALLERY (7 cols) */}
           <div className="lg:col-span-7 flex flex-col gap-3">
             {/* Main Active Photo Frame */}
-            {currentPhoto && (
+            {currentPhoto ? (
               <div
                 onClick={() => setLightboxImage(currentPhoto)}
                 className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-black/80 border border-white/15 cursor-pointer group shadow-xl"
@@ -117,6 +125,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                   alt={currentPhoto.alt}
                   fill
                   sizes="(max-width: 1024px) 100vw, 55vw"
+                  unoptimized
                   className="object-contain sm:object-cover group-hover:scale-105 transition-transform duration-500"
                   priority
                   unoptimized
@@ -129,6 +138,10 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                 <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[11px] font-medium text-slate-200">
                   {currentPhoto.label} ({activePhotoIndex + 1}/{photos.length})
                 </div>
+              </div>
+            ) : (
+              <div className="flex min-h-48 aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-black/30 px-6 text-center text-sm text-slate-400">
+                As mídias desta atualização estão sendo adicionadas.
               </div>
             )}
 
@@ -152,6 +165,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                       alt={photo.alt}
                       fill
                       sizes="80px"
+                      unoptimized
                       className="object-cover"
                       unoptimized
                     />
@@ -163,6 +177,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
 
           {/* RIGHT: HTML5 VIDEO PLAYER (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-3">
+            {video ? (
             <div className="relative w-full rounded-2xl overflow-hidden bg-black/80 border border-white/15 shadow-xl">
               <div className="p-3 bg-slate-950/80 border-b border-white/10 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
@@ -185,7 +200,12 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                 </video>
               </div>
             </div>
-            {video.description && (
+            ) : (
+              <div className="flex aspect-[9/16] max-h-[460px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-black/30 px-6 text-center text-sm text-slate-400">
+                O vídeo desta atualização está sendo adicionado.
+              </div>
+            )}
+            {video?.description && (
               <p className="text-xs text-slate-400 leading-relaxed px-1">
                 {video.description}
               </p>
@@ -245,6 +265,7 @@ export default function VisitUpdateSection({ currentEvent, media }: VisitUpdateS
                   alt={lightboxImage.alt}
                   fill
                   sizes="100vw"
+                  unoptimized
                   className="object-contain"
                   unoptimized
                 />
